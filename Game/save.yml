@@ -1,0 +1,7 @@
+UserNames:
+  - "One"
+  - "Two"
+list:
+  - hello world
+  - integer: 123
+    boolean: true
