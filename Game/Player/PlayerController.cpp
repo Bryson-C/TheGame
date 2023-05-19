@@ -13,55 +13,56 @@ void PlayerController::update(Event& event, Item& heldItem, SDL_RendererFlip fli
 
     bool canEnterCombatStance = (heldItem.type() == ItemSpawnList::ItemType::Tool || heldItem.type() == ItemSpawnList::ItemType::Weapon);
     bool canEnterMagicStance = (heldItem.type() == ItemSpawnList::ItemType::MagicalItem);
+
     bool xKeyDown = event.keyState()[SDL_SCANCODE_X];
     bool yKeyDown = event.keyState()[SDL_SCANCODE_Y];
 
-    // TODO: Seperate Magic And Melee Stance So They Dont Intervein With Eachother
-    if (xKeyDown || yKeyDown) {
-        if (!canEnterCombatStance)
-            printf("Cant Enter %s Stance With A %s\n", (xKeyDown) ? "Combat" : "Magic", (xKeyDown) ? "Non Weapon Or Tool" : "Non Magical Item");
-        else {
-            if (_PlayerEnterCombatStance.isCompleteReset(300)) {
-                if (_PlayerInCombatStance && (_StanceType == StanceType::Melee && xKeyDown || _StanceType == StanceType::Magic && yKeyDown)) {
-                    _PlayerInCombatStance = false;
-                    printf("Exiting Stance\n");
-                    _StanceType = StanceType::None;
-                } else {
-                    printf("Entering %s Stance\n", (xKeyDown) ? "Combat" : "Magic");
-                    if (canEnterCombatStance && xKeyDown) _StanceType = StanceType::Melee;
-                    else if (canEnterMagicStance && yKeyDown) _StanceType = StanceType::Magic;
-                    _PlayerInCombatStance = true;
-                }
-            }
+    // TODO: Separate Magic And Melee Stance So They Dont Intervene With Eachother
+    if ((xKeyDown || yKeyDown) && _PlayerEnterCombatStance.isComplete(300)) {
+        if (playerInCombatStance()) {
+            printf("Exiting %s Stance\n", (_StanceType == StanceType::Melee) ? "Combat" : "Magic");
+            _StanceType = StanceType::None;
+        } else {
+            if (xKeyDown && canEnterCombatStance) { _StanceType = StanceType::Melee; printf("Entering Melee Stance\n"); }
+            else if (yKeyDown && canEnterMagicStance) { _StanceType = StanceType::Magic; printf("Entering Magic Stance\n"); }
         }
+        _PlayerEnterCombatStance.reset();
     }
 
-    if (canEnterCombatStance) {
-        bool shiftHeldDown = event.keyState()[SDL_SCANCODE_LSHIFT];
-        bool controlHeldDown = event.keyState()[SDL_SCANCODE_LCTRL];
-        if (_PlayerInCombatStance) {
-            if (_PlayerAttackTimer.isCompleteReset(_PlayerAttackRecoveryTime)) {
-                if (event.mouseDownL()) {
-                    if (event.keyState()[SDL_SCANCODE_S]) launch(heldItem, flip);
-                    else if (controlHeldDown) lunge(heldItem, flip, playerPos.x);
-                    else if (shiftHeldDown) stab(heldItem, flip);
-                    else swing(heldItem, flip);
-                }
-            }
-            if (event.mouseDownR()) {
-                // TODO: Reimplement Parrying, Make It So That You Cannot Block After A Parry For A Short Time
-                /*if (controlHeldDown && _PlayerDefenseTimer.isCompleteReset(_PlayerDefenceRecoveryTime))
-                    parry(heldItem, flip);
-                else*/
-                block(heldItem, flip);
+
+    bool shiftHeldDown = event.keyState()[SDL_SCANCODE_LSHIFT];
+    bool controlHeldDown = event.keyState()[SDL_SCANCODE_LCTRL];
+    if (playerInCombatStance() && _StanceType == StanceType::Melee) {
+        if (_PlayerAttackTimer.isCompleteReset(_PlayerAttackRecoveryTime)) {
+            if (event.mouseDownL()) {
+                if (event.keyState()[SDL_SCANCODE_S]) launch(heldItem, flip);
+                else if (controlHeldDown) lunge(heldItem, flip, playerPos.x);
+                else if (shiftHeldDown) stab(heldItem, flip);
+                else swing(heldItem, flip);
             }
         }
+        if (event.mouseDownR()) {
+            // TODO: Reimplement Parrying, Make It So That You Cannot Block After A Parry For A Short Time
+            /*if (controlHeldDown && _PlayerDefenseTimer.isCompleteReset(_PlayerDefenceRecoveryTime))
+                parry(heldItem, flip);
+            else*/
+            block(heldItem, flip);
+        }
+    } else if (playerInCombatStance() && _StanceType == StanceType::Magic) {
+        // TODO: Add Magical Attacks
+
     }
+    // TODO: Implement
+    const bool playerInAir = false;
+    if (playerInAir && event.keyState()[SDL_SCANCODE_C]) {
+        printf("DROP KICK!\n");
+    }
+
 }
 
 void PlayerController::validateCombatStance(Item &heldItem) {
-    if ((heldItem.type() != ItemSpawnList::ItemType::Tool || heldItem.type() != ItemSpawnList::ItemType::Weapon) && _PlayerInCombatStance)
-        _PlayerInCombatStance = false;
+    if ((heldItem.type() != ItemSpawnList::ItemType::Tool || heldItem.type() != ItemSpawnList::ItemType::Weapon) && playerInCombatStance())
+        _StanceType = StanceType::None;
 }
 
 void PlayerController::swing(Item &heldItem, SDL_RendererFlip flip) {
@@ -181,18 +182,17 @@ void PlayerController::block(Item &heldItem, SDL_RendererFlip flip) {
 }
 
 void PlayerController::drawWeapon(Renderer& renderer, SDL_Rect pos, SDL_RendererFlip flip, Item &heldItem) {
-
     int32_t weaponSize = 32;
 
     Renderer::TextureDrawProperties props;
     props.rotationOrigin = {(flip == SDL_FLIP_NONE) ? 0 : 32 * 2, 32 * 2};
     props.flip = flip;
 
-    bool validStance = (_StanceType == StanceType::Melee &&
-                            (heldItem.type() == ItemSpawnList::ItemType::Tool || heldItem.type() == ItemSpawnList::ItemType::Weapon))
-                        || (_StanceType == StanceType::Magic && heldItem.type() == ItemSpawnList::ItemType::MagicalItem);
+    bool validStance = (_StanceType == StanceType::Melee && (heldItem.type() == ItemSpawnList::ItemType::Tool || heldItem.type() == ItemSpawnList::ItemType::Weapon));
+    bool validMagicStance = (_StanceType == StanceType::Magic && heldItem.type() == ItemSpawnList::ItemType::MagicalItem);
 
-    if (_PlayerInCombatStance && validStance) {
+
+    if (validStance || validMagicStance) {
         props.rotation = (heldItem.getRotation() * ((flip == SDL_FLIP_NONE) ? 1.0f : -1.0f)) + _TempItemRotation;
 
         SDL_Rect weaponPos {
@@ -205,17 +205,32 @@ void PlayerController::drawWeapon(Renderer& renderer, SDL_Rect pos, SDL_Renderer
         heldItem.draw(renderer, weaponPos, props);
     }
     else {
-        // Tool/Weapon Needs To Be Sheathed
-        props.rotation = (flip == SDL_FLIP_NONE) ? 150.0f : -150.0f;
+        if (heldItem.type() == ItemSpawnList::ItemType::Tool || heldItem.type() == ItemSpawnList::ItemType::Weapon) {
+            // Tool/Weapon Needs To Be Sheathed
+            props.rotation = (flip == SDL_FLIP_NONE) ? 150.0f : -150.0f;
 
-        SDL_Rect playerBack {
-                (flip == SDL_FLIP_NONE) ? pos.x : (pos.x + pos.w) - (weaponSize * 2),
-                pos.y - (weaponSize * 2),
-                weaponSize * 2,
-                weaponSize * 2
-        };
+            SDL_Rect playerBack{
+                    (flip == SDL_FLIP_NONE) ? pos.x : (pos.x + pos.w) - (weaponSize * 2),
+                    pos.y - (weaponSize * 2),
+                    weaponSize * 2,
+                    weaponSize * 2
+            };
 
-        heldItem.draw(renderer, playerBack, props);
+            heldItem.draw(renderer, playerBack, props);
+        } else if (heldItem.type() == ItemSpawnList::ItemType::MagicalItem) {
+            // Hold A Magical Item A Different Way Compare To Swords And Tools
+            props.rotation = (flip == SDL_FLIP_NONE) ? 45.0f : -45.0f;
 
+            SDL_Rect playerBack{
+                    (flip == SDL_FLIP_NONE) ? pos.x : (pos.x + pos.w) - (weaponSize * 2),
+                    pos.y, //- (weaponSize * 2),
+                    weaponSize * 2,
+                    weaponSize * 2
+            };
+
+            heldItem.draw(renderer, playerBack, props);
+        } else {
+
+        }
     }
 }

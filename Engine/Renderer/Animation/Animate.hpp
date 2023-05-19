@@ -86,11 +86,11 @@ public:
     }
 };
 
+
+// TODO: Make Animation Code Go On A Different Thread
 void updateAnimator();
-//void updateAnimatorI();
 
 void uploadAnimation(AnimationComponent<int32_t> comp);
 void uploadAnimation(AnimationComponent<float> comp);
-
 
 #endif //SDL_ANIMATE_HPP

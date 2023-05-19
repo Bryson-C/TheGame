@@ -13,6 +13,7 @@ private:
     const Uint8* keyboardState;
     int32_t mousePos[2];
     bool mouseButtonDown[3];
+    int32_t mouseScroll;
     friend class Renderer;
     friend int main();
 public:

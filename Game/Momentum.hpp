@@ -22,7 +22,7 @@ struct Momentum {
     // Works Like The `push` Function But Instead Of Adding Values Until The Momentum Hits Its Max, The Force Will Stay Below `dontExceed`s Value
     inline void pushDontExceed(move_t force, move_t dontExceed = 0) {
         move_t exceed = (dontExceed != 0) ? dontExceed : 10;
-        if (abs(currentMomentum + force) > exceed)
+        if (abs(currentMomentum + force) > abs(exceed))
             currentMomentum = (exceed * ((force < 0) ? -1 : 1));
         else currentMomentum += force;
     }

@@ -26,6 +26,7 @@ namespace ItemSpawnList {
         StoneBlock,
         TestPickaxe,
         TestSword,
+        TestTome,
     };
     void Despawn(Item& item, Renderer& renderer);
 }

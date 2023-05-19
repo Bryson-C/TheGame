@@ -1,6 +1,5 @@
 
 #undef main
-// TODO: Textures
 // TODO: Text
 
 #include "Game/Gameplay.hpp"

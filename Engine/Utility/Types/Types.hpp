@@ -37,6 +37,7 @@ struct v4 {
     T x, y, z, w;
 
     v4() {}
+    v4(T _x, T _y, T _z, T _w) : x(_x), y(_y), z(_z), w(_w) {}
     inline explicit operator SDL_Rect() { return {x,y,z,w}; }
 
     inline void print() { std::cout << x << ", " << y << ", " << z << ", " << w << "\n"; }

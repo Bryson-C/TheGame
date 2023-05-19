@@ -15,6 +15,8 @@ private:
 public:
     static v2<int32_t> getActiveSceneRenderOffset();
 
+    v2<int32_t>& getSceneOffset();
+
     void setActiveScene();
     void moveWorld(int x, int y);
     void moveWorld(v2<int> vec);

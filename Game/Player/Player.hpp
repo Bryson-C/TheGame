@@ -18,6 +18,8 @@ private:
     Rect _PlayerHitbox;
 
     bool _PlayerFacingRight = true;
+    bool _PlayerCanJump = false;
+    Momentum _MomentumX{20}, _MomentumY{20};
 
     PlayerController _Controller;
 
@@ -73,7 +75,7 @@ public:
     enum class PlayerDirection {RIGHT, LEFT};
     inline void setPlayerDirect(PlayerDirection dir) { _PlayerFacingRight = (dir == PlayerDirection::RIGHT) ? true : false; }
 
-//    Momentum MomentumComponent{10};
+    void update(Event& event, Scene& scene, std::vector<Rect>& possibleCollisions);
 };
 
 

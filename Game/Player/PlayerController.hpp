@@ -6,7 +6,7 @@
 #define SDL_PLAYERCONTROLLER_HPP
 
 #include <stdint.h>
-#include <variant>
+
 
 #include "../../Engine/Renderer/Renderer.hpp"
 #include "../../Engine/Renderer/Event.hpp"
@@ -16,12 +16,11 @@
 
 class PlayerController {
 private:
-    bool _PlayerInCombatStance = false;
     enum class StanceType {
         None,
         Melee, // X Button To Enter This Stance
         Magic // Y Button To Enter This Stance
-    } _StanceType;
+    } _StanceType = StanceType::None;
     Timer _PlayerEnterCombatStance{};
     Timer _PlayerAttackTimer{};
     int32_t _PlayerDefenceRecoveryTime = 0;
@@ -58,10 +57,7 @@ public:
 
     void update(Event& event, Item& heldItem, SDL_RendererFlip flip, v2<int,int>& worldOffset);
 
-    inline bool playerInCombatStance() { return _PlayerInCombatStance; }
-    inline bool playerInMeleeStance() { return _PlayerInCombatStance && _StanceType == StanceType::Melee; }
-    inline bool playerInMagicStance() { return _PlayerInCombatStance && _StanceType == StanceType::Magic; }
-
+    inline bool playerInCombatStance() { return _StanceType != StanceType::None; }
 
     void validateCombatStance(Item& heldItem);
     inline bool playerInAttack() { return !_PlayerAttackTimer.isComplete(_PlayerAttackRecoveryTime); }

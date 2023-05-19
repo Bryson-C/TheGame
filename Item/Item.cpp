@@ -42,6 +42,8 @@ Item ItemSpawnList::Spawn(ItemSpawnList::ItemID id, Renderer &renderer) {
             return Item(ItemType::Tool, ItemID::TestPickaxe, renderer.loadTexture(R"(X:\SDL\Asset\axe.jpg)", 0, 0, 200, 200), {0,0,64,64});
         case ItemID::TestSword:
             return Item(ItemType::Weapon, ItemID::TestSword, renderer.loadTexture(R"(X:\SDL\Asset\sword.png)", 0, 0, 32, 32), {0,0,64,64});
+        case ItemID::TestTome:
+            return Item(ItemType::MagicalItem, ItemID::TestTome, renderer.loadTexture(R"(X:\SDL\Asset\Spell_Tome.png)", 0, 0, 32, 32), {0,0,64,64});
         default:
             std::cerr << "Cannot Find Item Of Id: " << (int)id << "\n";
     }

@@ -2,6 +2,8 @@
 // Created by Owner on 4/1/2023.
 //
 
+#include <thread>
+
 #include "Gameplay.hpp"
 #include "Player/Player.hpp"
 #include "Enemy/Enemy.hpp"
@@ -29,10 +31,11 @@ int Game::RunGame() {
 
     Scene scene;
     scene.setActiveScene();
+    v2<int32_t> worldOffset = {200, player.pos().y + player.pos().h};
+    scene.moveWorldTo(worldOffset);
 
     World world(100, 10, 32, 32);
-    v2<int32_t> worldOffset = {200, player.pos().y + player.pos().h};
-    world.offsetWorld(worldOffset);
+    world.offsetWorld(scene.getSceneOffset());
     world.addWorldTextureForBlockType(World::BlockType::None, tileTextures[0]);
     world.addWorldTextureForBlockType(World::BlockType::Grass, tileTextures[0]);
     world.addWorldTextureForBlockType(World::BlockType::Dirt, tileTextures[1]);
@@ -45,10 +48,11 @@ int Game::RunGame() {
 
     Inventory playerInventory(renderer, 10, 1);
     playerInventory.moveCursor(0,0);
-    playerInventory.setSlot(0,0,ItemSpawnList::Spawn(ItemSpawnList::ItemID::TestSword, renderer));
-    playerInventory.setSlot(1,0,ItemSpawnList::Spawn(ItemSpawnList::ItemID::GrassBlock, renderer));
-    playerInventory.setSlot(2,0,ItemSpawnList::Spawn(ItemSpawnList::ItemID::DirtBlock, renderer));
-    playerInventory.setSlot(3,0,ItemSpawnList::Spawn(ItemSpawnList::ItemID::StoneBlock, renderer));
+    playerInventory.setSlot(0,0,ItemSpawnList::Spawn(ItemSpawnList::ItemID::TestTome, renderer));
+    playerInventory.setSlot(1,0,ItemSpawnList::Spawn(ItemSpawnList::ItemID::TestSword, renderer));
+    playerInventory.setSlot(2,0,ItemSpawnList::Spawn(ItemSpawnList::ItemID::GrassBlock, renderer));
+    playerInventory.setSlot(3,0,ItemSpawnList::Spawn(ItemSpawnList::ItemID::DirtBlock, renderer));
+    playerInventory.setSlot(4,0,ItemSpawnList::Spawn(ItemSpawnList::ItemID::StoneBlock, renderer));
 
     Timer enemyPushTimer{};
 
@@ -83,55 +87,10 @@ int Game::RunGame() {
 
 
 // Player Movement
-            playerCanFastFall = true;
-            // TODO: Change This To A Integer With Bit Operations To Save Memory
-            // TODO: Possibly Add This To An Advanced Version Of The `Rect` Struct
-            bool playerCanMove[4] = {true, true, true, true};
-            // Gravity
+
             std::vector<SDL_Rect> collisions = {player.pos()};
-            auto playerGravityCollisions = world.collisionCheck(collisions);
-            // If Player Is Colliding With Block
-            for (const auto& col : playerGravityCollisions) {
-                if (col.getCenterAsRect().pos.y > player.asRect().getCenterAsRect().pos.y) {
-                    if (col.pos.w >= 5) playerCanMove[2] = false;
-                } else {
-                    if (col.pos.w >= 5) playerCanMove[0] = false;
-                }
-                if (col.pos.h > col.pos.w && col.pos.h >= 5) {
-                    if (col.getCenterAsRect().pos.x > player.asRect().getCenterAsRect().pos.x) {
-                        playerCanMove[1] = false;
-                    } else {
-                        playerCanMove[3] = false;
-                    }
-                }
-                playerCanFastFall = false;
-                playerCanJump = true;
-            }
-
-            if (playerCanMove[2]) worldOffset.y -= 3;
-
-
-            auto shiftHeldDown = event.keyState()[SDL_SCANCODE_LSHIFT];
-            if (event.keyState()[SDL_SCANCODE_A]) {
-                if (playerCanMove[3]) worldOffset.x += (shiftHeldDown) ? 11 : 7;
-                player.setPlayerDirect(Player::PlayerDirection::LEFT);
-            }
-            if (event.keyState()[SDL_SCANCODE_D]) {
-                if (playerCanMove[1]) worldOffset.x -= (shiftHeldDown) ? 11 : 7;
-                player.setPlayerDirect(Player::PlayerDirection::RIGHT);
-            }
-#ifdef DEBUG_CONTROLS
-            if (event.keyState()[SDL_SCANCODE_W]) {
-                if (playerCanMove[0])
-                    worldOffset.y += 7;
-            }
-            if (event.keyState()[SDL_SCANCODE_S] && canFastFall && playerCanMove[2]) worldOffset.y -= 7;
-#endif
-            if (event.keyState()[SDL_SCANCODE_SPACE] && playerCanJump && playerCanMove[0]) {
-                playerCanJump = false;
-                worldOffset.y += 100;
-            }
-// End Player Movement
+            auto possiblePlayerWorldCollisions = world.collisionCheck(collisions);
+            player.update(event, scene, possiblePlayerWorldCollisions);
 
             if (event.mouseDownL() ) {
                 if (playerInventory.getSlot(hotbarIndex).type() == ItemSpawnList::ItemType::Block) {
@@ -156,8 +115,8 @@ int Game::RunGame() {
             } else if (event.keyState()[SDL_SCANCODE_UP]) {
                 SelectedItem::DropSelectedItem(playerInventory.getSlot(hotbarIndex), renderer);
             }
-            world.offsetWorld(worldOffset);
-            scene.moveWorldTo(worldOffset);
+
+            world.offsetWorld(scene.getSceneOffset());
         }
         player.pollPlayerController(event, playerInventory.getSlot(hotbarIndex), worldOffset);
 
@@ -172,25 +131,16 @@ int Game::RunGame() {
         player.draw(renderer);
         player.drawOutline(renderer);
 
-        switch (auto currentItem = playerInventory.getSlot(hotbarIndex); currentItem.type()) {
-            case ItemSpawnList::ItemType::Weapon:
-            case ItemSpawnList::ItemType::Tool:
-                // Tool/Weapon Needs To Be Out
-                player.getController().drawWeapon(renderer,
-                                                  player.pos(),
-                                                  player.getPlayerFlip(),
-                                                  playerInventory[hotbarIndex]);
-                break;
-            default:
-                break;
-        }
+
+        player.getController().drawWeapon(renderer,
+                                          player.pos(),
+                                          player.getPlayerFlip(),
+                                          playerInventory[hotbarIndex]);
 
         playerInventory.draw(renderer);
         playerInventory.drawCursor(renderer);
 
         SelectedItem::DrawSelectedItem(renderer, {{(int)(hotbarIndex * 32) + 16, 16, 32, 32}});
-        //PlayAnimations();
-
 
         renderer.present();
     }

@@ -24,6 +24,8 @@ SDL_Rect getAABBFromSceneView(SDL_Rect r) {
     return {r.x + offset.x, r.y + offset.y, r.w, r.h};
 }
 
+v2<int32_t> &Scene::getSceneOffset() { return _Offset; }
+
 void Scene::setActiveScene() { sg_SceneRenderOffset = &_Offset; }
 void Scene::moveWorld(int x, int y) { _Offset.x += x, _Offset.y += y; }
 void Scene::moveWorld(v2<int> vec) { _Offset.x += vec.x, _Offset.y += vec.y; }

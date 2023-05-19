@@ -14,6 +14,10 @@ void            Event::update()                     {
         mouseButtonDown[SDL_BUTTON_MIDDLE-1] = event.button.button == SDL_BUTTON_MMASK;
         mouseButtonDown[SDL_BUTTON_RIGHT-1] = event.button.button == SDL_BUTTON_RMASK;
     }
+    if (event.button.type == SDL_MOUSEWHEEL) {
+        if (event.wheel.y > 0) mouseScroll = -1;
+        if (event.wheel.y < 0) mouseScroll = 1;
+    }
 }
                 Event::Event()                      { update(); }
 const uint8_t*  Event::keyState()                   { return keyboardState; }
@@ -33,9 +37,8 @@ const bool      Event::mouseDownM()         const   {
 }
 
 const bool      Event::mouseScrollDown()    const {
-    // TODO: Fix Scrolling Functionality
-    return event.wheel.y < 0;
+    return mouseScroll == 1;
 }
 const bool      Event::mouseScrollUp()      const {
-    return event.wheel.y > 0;
+    return mouseScroll == -1;
 }

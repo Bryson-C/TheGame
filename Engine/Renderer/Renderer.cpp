@@ -4,19 +4,20 @@
 
 #include "Renderer.hpp"
 
+static uint32_t s_RendererGlobalID = 0;
 
 
 Renderer::Renderer(uint32_t width, uint32_t height) : gameLoopValid(true), time(clock()) {
     SDL_Init(SDL_INIT_VIDEO);
     IMG_Init(IMG_INIT_PNG | IMG_INIT_PNG);
-    window = SDL_CreateWindow("Window",
+    window = SDL_CreateWindow(std::string("Window" + std::to_string(s_RendererGlobalID)).c_str(),
                               SDL_WINDOWPOS_CENTERED,
                               SDL_WINDOWPOS_CENTERED,
                               width,
                               height,
                               SDL_WINDOW_RESIZABLE);
     renderer = SDL_CreateRenderer(window,
-                                  0,
+                                  s_RendererGlobalID++,
                                   SDL_RENDERER_ACCELERATED);
 }
 Renderer::~Renderer() {
