@@ -39,7 +39,7 @@ Item ItemSpawnList::Spawn(ItemSpawnList::ItemID id, Renderer &renderer) {
         case ItemID::StoneBlock:
             return Item(ItemType::Block, ItemID::StoneBlock, renderer.loadTexture(R"(X:\SDL\Asset\Tileset64.png)", 128, 0, 64, 64), {0,0,64,64});
         case ItemID::TestPickaxe:
-            return Item(ItemType::Tool, ItemID::TestPickaxe, renderer.loadTexture(R"(X:\SDL\Asset\axe.jpg)", 0, 0, 200, 200), {0,0,64,64});
+            return Item(ItemType::Tool, ItemID::TestPickaxe, renderer.loadTexture(R"(X:\SDL\Asset\pickaxe.png)", 0, 0, 200, 200), {0,0,64,64});
         case ItemID::TestSword:
             return Item(ItemType::Weapon, ItemID::TestSword, renderer.loadTexture(R"(X:\SDL\Asset\sword.png)", 0, 0, 32, 32), {0,0,64,64});
         case ItemID::TestTome:

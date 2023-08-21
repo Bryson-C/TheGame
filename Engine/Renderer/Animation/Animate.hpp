@@ -93,4 +93,8 @@ void updateAnimator();
 void uploadAnimation(AnimationComponent<int32_t> comp);
 void uploadAnimation(AnimationComponent<float> comp);
 
+// I Did This Because Its Funny And I Basically Use It As An Async Value Changer
+template<typename T>
+using ForeignLabor = AnimationComponent<T>;
+
 #endif //SDL_ANIMATE_HPP

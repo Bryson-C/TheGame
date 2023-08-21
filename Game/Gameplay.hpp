@@ -13,19 +13,22 @@
 
 #include "../Engine/Renderer/Renderer.hpp"
 #include "../Engine/Renderer/Animation/Animate.hpp"
-#include "../World/World.hpp"
+#include "../Engine/Renderer/Scene/World/World.hpp"
 #include "../Item/Item.hpp"
 
 #include <random>
 #include <map>
 
 #define GAME_FUNCTION Game::RunGame
+//#define GAME_FUNCTION Game::WorldDemo
+
 namespace Game {
-    int RunGame();
     // TODO: Work On Resizable Windows
-    int RunResizableWindowTest();
     // TODO: Work On Scriptable Gameplay
-    int RunScriptingEngineTest();
+
+    int RunGame(Renderer& renderer);
+    int WorldDemo(Renderer& renderer);
+    int RunWorldChunkingDemo(Renderer& renderer);
 }
 
 #endif //SDL_GAMEPLAY_HPP

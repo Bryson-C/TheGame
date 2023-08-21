@@ -26,8 +26,10 @@ private:
 public:
     SDL_Rect pos;
     RenderDrawColor col;
+    Rect() : pos({0, 0, 0, 0}) {}
     explicit Rect(SDL_Rect rect);
     explicit Rect(int x, int y, int w, int h);
+    inline void operator=(SDL_Rect rect) { Rect(rect.x, rect.y, rect.w, rect.h); }
     inline explicit operator SDL_Rect() const { return pos; }
 
     void addTexture(std::initializer_list<Texture> textures);
@@ -43,9 +45,10 @@ public:
     bool collides(SDL_Rect b) { return SDL_HasIntersection(&pos, &b); }
 
     void centerOnRect(SDL_Rect b) { pos.x = (b.x + (b.w/2)) - pos.w/2; pos.y = (b.y + (b.h/2)) - pos.h/2; }
-    inline Rect getCenterAsRect() const { Rect r {pos.x + (pos.w/2), pos.y + (pos.h/2), 1, 1}; return r; }
+    inline Rect getCenterOfRect() const { Rect r {pos.x + (pos.w/2), pos.y + (pos.h/2), 1, 1}; return r; }
 
 
 };
-
+inline SDL_Rect getCenterOfRect(SDL_Rect pos) { SDL_Rect r {pos.x + (pos.w/2), pos.y + (pos.h/2), 1, 1}; return r; }
+inline bool rectsCollide(SDL_Rect a, SDL_Rect b) { return SDL_HasIntersection(&a, &b); }
 #endif //SDL_RECT_HPP

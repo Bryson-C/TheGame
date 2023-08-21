@@ -112,6 +112,20 @@ void Renderer::unloadTexture(Texture& texture) {
     }
     texture.gTextureIndex = -1;
 }
+
+void Renderer::drawLine(v2<int> xy, v2<int> xy2, RenderDrawColor color) {
+    auto col = getColor();
+    setColor(color);
+    SDL_RenderDrawLine(renderer, xy.x, xy.y, xy2.x, xy2.y);
+    setColor(col);
+}
+void Renderer::drawLine(v4<int> xy, RenderDrawColor color) {
+    auto col = getColor();
+    setColor(color);
+    SDL_RenderDrawLine(renderer, xy.x, xy.y, xy.z, xy.w);
+    setColor(col);
+}
+
 template<typename RectType>
 void Renderer::drawRect(RectType rect, std::optional<RectDrawProperties> props) requires concept_ConvertableToSDLRect<RectType> {
     if (props.has_value() && !props->filled)
@@ -141,13 +155,14 @@ void Renderer::drawRectArray(std::vector<SDL_Rect> &rects, std::optional<RectDra
     else
         SDL_RenderFillRects(renderer, rects.data(), (size_t)rects.size());
 }
-void Renderer::drawTexture(SDL_Rect pos, Texture& texture, std::optional<TextureDrawProperties> props) {
+
+void Renderer::drawTextureClipped(SDL_Rect pos, SDL_Rect clipArea, Texture& texture, std::optional<TextureDrawProperties> props) {
     SDL_Rect texturePos = {texture.textureX, texture.textureY, texture.textureW, texture.textureH};
 
     if (props.has_value())
         SDL_RenderCopyEx(renderer,
-                        (*Texture::getGlobalTextures())[texture.gTextureIndex].texture,
-                         &texturePos,
+                         (*Texture::getGlobalTextures())[texture.gTextureIndex].texture,
+                         &clipArea,
                          &pos,
                          props.value().rotation,
                          &props.value().rotationOrigin,
@@ -155,8 +170,13 @@ void Renderer::drawTexture(SDL_Rect pos, Texture& texture, std::optional<Texture
     else
         SDL_RenderCopy(renderer,
                        (*Texture::getGlobalTextures())[texture.gTextureIndex].texture,
-                       &texturePos,
+                       &clipArea,
                        &pos);
+}
+
+void Renderer::drawTexture(SDL_Rect pos, Texture& texture, std::optional<TextureDrawProperties> props) {
+    SDL_Rect texturePos = {texture.textureX, texture.textureY, texture.textureW, texture.textureH};
+    drawTextureClipped(pos, texturePos, texture, props);
 }
 
 void Renderer::setColor(uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
@@ -182,7 +202,6 @@ void Renderer::present() {
     SDL_RenderPresent(renderer);
 }
 
-
 void drawObjectFromSceneView(Renderer& renderer, Rect& r, std::optional<Renderer::RectDrawProperties> props) {
     renderer.drawRect(getAABBFromSceneView(r), props);
 }
@@ -192,6 +211,27 @@ void drawObjectFromSceneView(Renderer& renderer, SDL_Rect r, std::optional<Rende
 void drawObjectFromSceneView(Renderer& renderer, SDL_Rect r, Texture& texture, std::optional<Renderer::TextureDrawProperties> props) {
     renderer.drawTexture(getAABBFromSceneView(r), texture, props);
 }
+void drawLineFromSceneView(Renderer& renderer, v2<int> xy, v2<int> xy2) {
+    SDL_Rect p1 = getAABBFromSceneView({xy.x, xy.y, 1, 1});
+    SDL_Rect p2 = getAABBFromSceneView({xy2.x, xy2.y, 1, 1});
+    v4<int> points = {p1.x, p1.y, p2.x, p2.y};
+    renderer.drawLine(points);
+}
+void drawLineFromSceneView(Renderer& renderer, v4<int> line) {
+    drawLineFromSceneView(renderer, {line.x, line.y}, {line.z, line.w});
+}
 
+struct PercentageBarProperties {
+    int padding;
+};
 
-
+void drawPercentageBar(Renderer& renderer, SDL_Rect rect, int current, int max) {
+    auto col = renderer.getColor();
+    SDL_Rect border = {rect.x, rect.y - (rect.h * 2), rect.w, rect.h};
+    renderer.setColor(40,40,40);
+    renderer.drawRect(border);
+    SDL_Rect inside = {rect.x, rect.y - 20, (current > 0) ? ((current * rect.w) / max) : 0, 10};
+    renderer.setColor(255,0,0);
+    renderer.drawRect(inside);
+    renderer.setColor(col);
+}

@@ -25,17 +25,30 @@ public:
             _Pos.col = {255,0,255};
     }
     inline Rect& rect() { return _Pos; }
-    inline void update() {
+    inline void update(Scene& scene, std::vector<Rect>& possibleCollisions) {
+        // TODO: Make This Collision Detection More Advanced, More Like The Players
+        auto self = Rect(getAABBFromSceneView(_Pos));
+        for (const auto& col : possibleCollisions) {
+            if (self.collides(col.pos)) {
+                _MomentumCompY.currentMomentum = 0;
+                _MomentumCompY.push(1);
+            } else {
+                _MomentumCompY.pushDontExceed(2, 4);
+            }
+        }
+
         _MomentumCompX.applyForce(_Pos.pos.x);
         _MomentumCompY.applyForce(_Pos.pos.y);
     }
     inline void draw(Renderer& renderer) {
         auto col = renderer.getColor();
-        renderer.setColor(40,40,40);
-        drawObjectFromSceneView(renderer, {_Pos.pos.x, _Pos.pos.y - 20, _Pos.pos.w, 10});
         renderer.setColor(255,0,0);
-        int32_t healthBarWidth = (_Health > 0) ? ((_Health * _Pos.pos.w) / _MaxHealth) : 0;
-        drawObjectFromSceneView(renderer, {_Pos.pos.x, _Pos.pos.y - 20, healthBarWidth, 10});
+        SDL_Rect bar = _Pos.pos;
+        bar.x -= _Pos.pos.w / 2;
+        bar.w *= 2;
+        bar.h = 10;
+        bar.y -= bar.h * 2;
+        drawPercentageBar(renderer, getAABBFromSceneView(bar), _Health, _MaxHealth);
         drawObjectFromSceneView(renderer, _Pos);
         renderer.setColor(col);
     }

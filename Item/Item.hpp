@@ -39,6 +39,13 @@ private:
     Rect _rect;
     Timer useTimer{};
     time_t _swingTimer;
+
+    struct ToolStats {
+        int32_t toolStrength = 40;
+    } toolStats;
+
+
+
     friend void ItemSpawnList::Despawn(Item& item, Renderer& renderer);
     friend class PlayerController;
 public:
@@ -57,14 +64,16 @@ public:
     inline Texture getTexture(size_t index = 0) { return _rect._textures[index]; }
     inline void setTexture(Texture texture) { _rect.addTexture({texture}); }
     void draw(Renderer& renderer, SDL_Rect dst = {0,0,0,0}, std::optional<Renderer::TextureDrawProperties> props = {});
-
     inline float getRotation() { return _rect._rot; }
+
+    inline ToolStats getToolStats() const { return toolStats; }
 };
 
 namespace ItemSpawnList {
     Item Spawn(ItemID id, Renderer& renderer);
 }
 namespace SelectedItem {
+    static bool isHoldingItem;
     void SelectItem(Item& item, Renderer& renderer);
     void DropSelectedItem(Item& item, Renderer& renderer);
     void DrawSelectedItem(Renderer& renderer, std::optional<SDL_Rect> drawPos = {});

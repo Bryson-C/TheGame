@@ -20,8 +20,15 @@ void PlayerController::update(Event& event, Item& heldItem, SDL_RendererFlip fli
     // TODO: Separate Magic And Melee Stance So They Dont Intervene With Eachother
     if ((xKeyDown || yKeyDown) && _PlayerEnterCombatStance.isComplete(300)) {
         if (playerInCombatStance()) {
-            printf("Exiting %s Stance\n", (_StanceType == StanceType::Melee) ? "Combat" : "Magic");
-            _StanceType = StanceType::None;
+            if (xKeyDown && _StanceType == StanceType::Melee) {
+                _StanceType = StanceType::None;
+                printf("Exiting Melee Stance\n");
+            }
+            else if (yKeyDown && _StanceType == StanceType::Magic) {
+                _StanceType = StanceType::None;
+                printf("Exiting Magic Stance\n");
+            }
+
         } else {
             if (xKeyDown && canEnterCombatStance) { _StanceType = StanceType::Melee; printf("Entering Melee Stance\n"); }
             else if (yKeyDown && canEnterMagicStance) { _StanceType = StanceType::Magic; printf("Entering Magic Stance\n"); }
@@ -183,9 +190,10 @@ void PlayerController::block(Item &heldItem, SDL_RendererFlip flip) {
 
 void PlayerController::drawWeapon(Renderer& renderer, SDL_Rect pos, SDL_RendererFlip flip, Item &heldItem) {
     int32_t weaponSize = 32;
+    int32_t weaponScale = 2;
 
     Renderer::TextureDrawProperties props;
-    props.rotationOrigin = {(flip == SDL_FLIP_NONE) ? 0 : 32 * 2, 32 * 2};
+    props.rotationOrigin = {(flip == SDL_FLIP_NONE) ? 0 : weaponSize * weaponScale, weaponSize * weaponScale};
     props.flip = flip;
 
     bool validStance = (_StanceType == StanceType::Melee && (heldItem.type() == ItemSpawnList::ItemType::Tool || heldItem.type() == ItemSpawnList::ItemType::Weapon));
@@ -193,7 +201,13 @@ void PlayerController::drawWeapon(Renderer& renderer, SDL_Rect pos, SDL_Renderer
 
 
     if (validStance || validMagicStance) {
+        /*if (heldItem.useTimer.isComplete(heldItem._swingTimer)) {
+            _TempItemRotation += (flip == SDL_FLIP_NONE) ? 45.0f : -45.0f;
+            _TempItemOffset.x += (flip == SDL_FLIP_NONE) ? -10 : 10;
+            gripPoint[animationFrame]
+        }*/
         props.rotation = (heldItem.getRotation() * ((flip == SDL_FLIP_NONE) ? 1.0f : -1.0f)) + _TempItemRotation;
+
 
         SDL_Rect weaponPos {
                 (((flip == SDL_FLIP_NONE) ? pos.x + pos.w : pos.x - (weaponSize * 2)) + heldItem._rect.pos.x) + _TempItemOffset.x,

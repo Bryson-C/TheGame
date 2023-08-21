@@ -12,7 +12,18 @@
 #include "../../Engine/Renderer/Event.hpp"
 #include "../../Engine/Renderer/Animation/Animate.hpp"
 #include "../../Engine/Utility/Types/Types.hpp"
-#include "../../World/World.hpp"
+#include "../../Engine/Renderer/Scene/World/World.hpp"
+
+
+class PlayerStatistics {
+public:
+    std::string playerName;
+    int32_t health;
+    int32_t strength;
+    int32_t dexterity;
+    int32_t arcana;
+    int32_t defence;
+};
 
 class PlayerController {
 private:

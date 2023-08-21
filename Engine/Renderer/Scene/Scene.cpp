@@ -11,7 +11,7 @@ namespace {
     v2<int32_t>* pActiveScene() { return sg_SceneRenderOffset; }
 }
 
-v2<int32_t> Scene::getActiveSceneRenderOffset() { return *sg_SceneRenderOffset; }
+v2<int32_t> Scene::getActiveSceneRenderOffset() { if (sg_SceneRenderOffset != nullptr) return *sg_SceneRenderOffset; else return {0,0}; }
 
 SDL_Rect getAABBFromSceneView(Rect& r) {
     v2<int> offset = {0,0};

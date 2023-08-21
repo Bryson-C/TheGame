@@ -13,6 +13,11 @@ struct Momentum {
 
     Momentum(int32_t _maxMomentum) : maxMomentum(_maxMomentum), currentMomentum(0) {}
 
+    template<typename IntegerType>
+    inline void operator=(IntegerType integer) requires concept_ConvertableToInteger<IntegerType> {
+        currentMomentum = (abs(integer) > maxMomentum) ? maxMomentum : integer;
+    }
+
     move_t maxMomentum;
     move_t currentMomentum;
     inline void push(move_t force) {
