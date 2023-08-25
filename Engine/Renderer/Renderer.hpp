@@ -5,7 +5,7 @@
 #ifndef SDL_RENDERER_HPP
 #define SDL_RENDERER_HPP
 
-#define PATH_TO_SRC "C:\\Users\\Bryson\\Documents\\Code\\Game"
+#define PATH_TO_SRC "X:\\SDL"
 
 
 #include <iostream>

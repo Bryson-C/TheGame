@@ -96,7 +96,7 @@ auto Game::WorldDemo(Renderer &renderer) -> int {
 }
 #endif
 
-#define PATH_TO_SRC "C:\\Users\\Bryson\\Documents\\Code\\Game"
+#define PATH_TO_SRC "X:\\SDL"
 
 
 struct Chunk {
@@ -338,6 +338,7 @@ auto Game::RunGame(Renderer& renderer) -> int {
             renderer.loadTexture(PATH_TO_SRC"\\Asset\\Tileset64.png", 64, 0, 64, 64),
             renderer.loadTexture(PATH_TO_SRC"\\Asset\\Tileset64.png", 128, 0, 64, 64),
     };
+
 
     // generate world
 
@@ -638,11 +639,10 @@ auto Game::RunGame(Renderer& renderer) -> int {
         world.draw(renderer);
         FontRenderer::FontProperties textProperties{};
         textProperties.characterSize = 32;
-        textProperties.kerning = textProperties.characterSize/2;
+        textProperties.kerning = 20;
         textProperties.renderAsOutlined = true;
         fontRenderer.drawText(renderer, "Hello", 100, 100, textProperties);
         fontRenderer.drawText(renderer, "Rendering A String", 100, 200, textProperties);
-
 
 
         player.draw(renderer);

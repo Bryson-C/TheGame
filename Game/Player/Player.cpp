@@ -4,7 +4,7 @@
 
 #include "Player.hpp"
 
-#define PATH_TO_SRC "C:\\Users\\Bryson\\Documents\\Code\\Game"
+#define PATH_TO_SRC "X:\\SDL"
 
 Player::Player(Renderer& renderer, int spawnX, int spawnY) :
         _PlayerHead(spawnX,spawnY, 32, 32),
@@ -263,354 +263,376 @@ void Player::update(Event& event, Scene& scene, std::vector<Rect>& possibleColli
     auto shiftHeld = event.keyState()[SDL_SCANCODE_LSHIFT];
     auto aHeld = event.keyState()[SDL_SCANCODE_A];
     auto dHeld = event.keyState()[SDL_SCANCODE_D];
+    int32_t momentum = 0;
+    int32_t timeTillNextFrame = 64;
+
     if (aHeld && playerCanMove[3] && !_PlayerRollStatus.isActive) {
-        _MomentumX.pushDontExceed((shiftHeld) ? 11 : 6, (shiftHeld) ? 11 : 6);
+        int movement = (shiftHeld) ? 11 : 6;
+        if (!_PlayerPunchStatus.isActive) //movement /= (shiftHeld) ? 2 :4;
+            _MomentumX.pushDontExceed(movement, movement);
         _PlayerFacingRight = false;
     }
     else if (dHeld && playerCanMove[1] && !_PlayerRollStatus.isActive) {
-        _MomentumX.pushDontExceed((shiftHeld) ? -11 : -6, (shiftHeld) ? 11 : 6);
+        int movement = (shiftHeld) ? 11 : 6;
+        if (!_PlayerPunchStatus.isActive) //movement /= (shiftHeld) ? 2 :4;
+            _MomentumX.pushDontExceed(-movement, movement);
         _PlayerFacingRight = true;
     }
     if (event.keyState()[SDL_SCANCODE_LALT] && !_PlayerRollStatus.isActive && _PlayerJumpStatus[0].canJump) {
         _PlayerRollStatus.isActive = true;
+        _PlayerRollStatus.stage = 0;
     }
     if (event.keyState()[SDL_SCANCODE_SPACE] && playerCanMove[0] && !_PlayerRollStatus.isActive) {
         if (_PlayerJumpStatus[0].canJump) {
             _PlayerJumpStatus[0].reset();
             _PlayerJumpStatus[1].canJump = true;
             printf("Max Jump Height: %i, (Originally 150)\n", -maxJumpHeight);
-            /*if (maxJumpHeight < 150) {
-                //scene.moveWorld(0, maxJumpHeight - 10);
-                move(scene.getSceneOffset(), 0, -maxJumpHeight);
-            } else*/
             _MomentumY.push(maxJumpHeight);
-        } else if (_PlayerJumpStatus[1].canJump && _PlayerJumpStatus[0].jumpStage == 2) {
+        } else if (_PlayerJumpStatus[1].canJump && _PlayerJumpStatus[0].jumpStage >= 2) {
             printf("Double Jump\n");
             _PlayerJumpStatus[1].reset();
             _MomentumY.push(maxJumpHeight);
         }
     }
-    if (event.mouseDownL()) {
+    if (event.mouseDownL() && _PlayerJumpStatus[0].canJump) {
         if (_Controller.playerInCombatStance()) {
             if (event.keyState()[SDL_SCANCODE_S]) {
                 _PlayerWeaponStabStatus.isActive = true;
-                printf("Stab\n");
             } else {
                 _PlayerWeaponSwingStatus.isActive = true;
-                printf("Swing\n");
             }
         } else {
             _PlayerPunchStatus.isActive = true;
         }
     }
 
-    scene.moveWorld(_MomentumX.currentMomentum, _MomentumY.currentMomentum);
-    _MomentumX.applyForce();
-    _MomentumY.applyForce();
 
-    uint32_t timeTillNextFrame;
-    if (_PlayerWeaponSwingStatus.isActive) {
-        timeTillNextFrame = 64;
-        AnimatePlayerWeaponSwingState();
-        if (_PlayerWeaponSwingStatus.stage >= 5) {
-            _PlayerWeaponSwingStatus.isActive = false;
-            _PlayerWeaponSwingStatus.stage = 0;
-        }
-    }
 
     if (_PlayerPunchStatus.isActive) {
-        timeTillNextFrame = 64;
+        timeTillNextFrame = 80;
         AnimatePlayerPunchState();
-        if (_PlayerPunchStatus.stage >= 7) {
+        if (event.mouseDownL()) {
+            if (!aHeld && !dHeld) {
+                _PlayerPunchStatus.stage = 1;
+                _AnimationController.setFrame(1);
+            } else if (aHeld || dHeld) {
+                _PlayerPunchStatus.stage = 3;
+                _AnimationController.setFrame(3);
+            }
+        } else {
+            if (_UpdateAnimationFrameTimer.isCompleteReset(timeTillNextFrame)) {
+                _AnimationController.nextFrame();
+                _PlayerPunchStatus.stage = _AnimationController.getFrame();
+            }
+        }
+        if (_PlayerPunchStatus.stage == 0) {
             _PlayerPunchStatus.isActive = false;
             _PlayerPunchStatus.stage = 0;
         }
+        else if (_PlayerPunchStatus.stage == 4) _MomentumX.pushDontExceed((_PlayerFacingRight) ? -5 : 5, (shiftHeld) ? 11 : 6);
     }
     if (_PlayerWeaponStabStatus.isActive) {
         timeTillNextFrame = 64;
         AnimatePlayerWeaponStabState();
+        printf("Stab\n");
         if (_PlayerWeaponStabStatus.stage >= 6) {
             _PlayerWeaponStabStatus.isActive = false;
             _PlayerWeaponStabStatus.stage = 0;
         }
     }
+    if (_PlayerWeaponSwingStatus.isActive) {
+        timeTillNextFrame = 64;
+        AnimatePlayerState(PlayerControllerState::WeaponSwing, timeTillNextFrame, &_PlayerWeaponSwingStatus);
+        if (_PlayerWeaponSwingStatus.stage >= 5) {
+            _PlayerWeaponSwingStatus.isActive = false;
+            _PlayerWeaponSwingStatus.stage = 0;
+        }
+    }
     if (_PlayerRollStatus.isActive) {
-        timeTillNextFrame = 50;
-        AnimatePlayerRollState();
-        if (_PlayerRollStatus.stage >= 6) {
+        timeTillNextFrame = 80;
+        AnimatePlayerState(PlayerControllerState::Roll, timeTillNextFrame, &_PlayerRollStatus);
+        if (_PlayerRollStatus.stage < 6) {
+            _MomentumX.pushDontExceed((_PlayerFacingRight) ? -11 : 11, 11);
+        } else if (_PlayerRollStatus.stage >= 6) {
             _PlayerRollStatus.isActive = false;
             _PlayerRollStatus.stage = 0;
-        } else {
-            _MomentumX.pushDontExceed((_PlayerFacingRight) ? -11 : 11, 11);
         }
     }
     else if (!_PlayerJumpStatus[0].canJump) {
         if (!_PlayerJumpStatus[1].canJump) {
             timeTillNextFrame = 80;
-            if (_UpdateAnimationFrameTimer.isCompleteReset(timeTillNextFrame) && _PlayerJumpStatus[1].jumpStage < 5) {
-                _PlayerJumpStatus[1].jumpStage++;
-            }
-            AnimatePlayerAirFlipState();
+            AnimatePlayerStateDontRepeat(PlayerControllerState::AirFlip, timeTillNextFrame);
         } else {
-
-            timeTillNextFrame = 100;
-            // Jumping
-            if (_PlayerJumpStatus[0].airTime.getTime() > 200 * (maxJumpHeight / 100))
-                _PlayerJumpStatus[0].jumpStage = 1;
-            if (_PlayerJumpStatus[0].airTime.getTime() > 300 * (maxJumpHeight / 100))
-                _PlayerJumpStatus[0].jumpStage = 2;
-
-            AnimatePlayerJumpState();
+            timeTillNextFrame = 120;
+            PlayerActionStatus jumpStatus;
+            AnimatePlayerStateDontRepeat(PlayerControllerState::Jump, timeTillNextFrame, &jumpStatus);
+            _PlayerJumpStatus[0].jumpStage = jumpStatus.stage;
         }
     } else {
-        if ((aHeld || dHeld) && !_PlayerPunchStatus.isActive) {
-            // Running
-            if (shiftHeld) {
-                timeTillNextFrame = 50;
-                AnimatePlayerRunState();
+        if (!_PlayerPunchStatus.isActive && !_PlayerWeaponSwingStatus.isActive && !_PlayerWeaponStabStatus.isActive) {
+            if ((aHeld || dHeld)) {
+                // Running
+                if (shiftHeld) {
+                    timeTillNextFrame = 50;
+                    AnimatePlayerState(PlayerControllerState::Running, timeTillNextFrame);
+                } else {
+                    // Walking
+                    AnimatePlayerState(PlayerControllerState::Walking, timeTillNextFrame);
+                }
             } else {
-                // Walking
-                timeTillNextFrame = 64;
-                AnimatePlayerWalkState();
-            }
-        } else {
-            // Idle
-            if (!_PlayerPunchStatus.isActive) {
-                timeTillNextFrame = 64;
-                AnimatePlayerIdleState();
+                // Idle
+                if (!_PlayerPunchStatus.isActive) {
+                    AnimatePlayerState(PlayerControllerState::Idle, timeTillNextFrame);
+                }
             }
         }
     }
 
-
-    //_playerHeldItemInteropNeedsUpdate = _UpdateAnimationFrameTimer.getTime() > ((timeTillNextFrame * _playerHeldItemInteropFrame) / _playerHeldItemInteropSteps);
-    _playerHeldItemInteropFrame = _UpdateAnimationFrameTimer.getTime() / (timeTillNextFrame / _playerHeldItemInteropSteps);
-    if (_playerHeldItemInteropFrame > _playerHeldItemInteropSteps) _playerHeldItemInteropFrame = 0;
-}
+            scene.moveWorld(_MomentumX.currentMomentum, _MomentumY.currentMomentum);
+            _MomentumX.applyForce();
+            _MomentumY.applyForce();
 
 
-void Player::draw(Renderer &renderer) {
-    // Old Way Of Doing It, I Still Need To Split The Test Animations So I Can Have More Control Over The Animations
-    //renderer.drawRect(_PlayerHead);
-    //renderer.drawRect(_PlayerBody);
-    //renderer.drawRect(_PlayerLegs);
-    Renderer::TextureDrawProperties props;
-    props.flip = (_PlayerFacingRight) ? SDL_FLIP_NONE : SDL_FLIP_HORIZONTAL;
-    props.rotationOrigin = {0,0};
-    props.rotation = 0.0f;
-    SDL_Rect position = {
-            pos().x - 48,
-            pos().y - 48,
-            _AnimationController.getFrameTexture().textureW * 3,
-            _AnimationController.getFrameTexture().textureH * 3
-    };
-    _AnimationController.drawFrame(renderer, position, props);
+            //_playerHeldItemInteropNeedsUpdate = _UpdateAnimationFrameTimer.getTime() > ((timeTillNextFrame * _playerHeldItemInteropFrame) / _playerHeldItemInteropSteps);
+            _playerHeldItemInteropFrame = _UpdateAnimationFrameTimer.getTime() / (timeTillNextFrame / _playerHeldItemInteropSteps);
+            if (_playerHeldItemInteropFrame > _playerHeldItemInteropSteps) _playerHeldItemInteropFrame = 0;
+        }
 
-#ifdef PLAYER_DEBUG
-    auto col = renderer.getColor();
-    renderer.setColor(255,0,0);
-    for (const auto& check : CollisionCheckers) {
-        renderer.drawRect(check, {{.filled = false}});
-    }
-    renderer.setColor(col);
-#endif
 
-}
+        void Player::draw(Renderer &renderer) {
+            // Old Way Of Doing It, I Still Need To Split The Test Animations So I Can Have More Control Over The Animations
+            //renderer.drawRect(_PlayerHead);
+            //renderer.drawRect(_PlayerBody);
+            //renderer.drawRect(_PlayerLegs);
+            Renderer::TextureDrawProperties props;
+            props.flip = (_PlayerFacingRight) ? SDL_FLIP_NONE : SDL_FLIP_HORIZONTAL;
+            props.rotationOrigin = {0,0};
+            props.rotation = 0.0f;
+            SDL_Rect position = {
+                    pos().x - 48,
+                    pos().y - 48,
+                    _AnimationController.getFrameTexture().textureW * 3,
+                    _AnimationController.getFrameTexture().textureH * 3
+            };
+            _AnimationController.drawFrame(renderer, position, props);
 
-int32_t updateInterop(int32_t from, int32_t to, int32_t frame, int32_t steps) {
-    return  from + ((to - from) / steps) * frame;
-}
+        #ifdef PLAYER_DEBUG
+            auto col = renderer.getColor();
+            renderer.setColor(255,0,0);
+            for (const auto& check : CollisionCheckers) {
+                renderer.drawRect(check, {{.filled = false}});
+            }
+            renderer.setColor(col);
+        #endif
+
+        }
+
+        int32_t updateInterop(int32_t from, int32_t to, int32_t frame, int32_t steps) {
+            return  from + ((to - from) / steps) * frame;
+        }
 
 void DrawPlayersHeldItem(Renderer& renderer, Player& player, Item& heldItem) {
-    if (heldItem.type() != ItemSpawnList::ItemType::Tool &&
-        heldItem.type() != ItemSpawnList::ItemType::Weapon &&
-        heldItem.type() != ItemSpawnList::ItemType::MagicalItem) return;
+        if (heldItem.type() != ItemSpawnList::ItemType::Tool &&
+            heldItem.type() != ItemSpawnList::ItemType::Weapon &&
+            heldItem.type() != ItemSpawnList::ItemType::MagicalItem) return;
 
-    enum PlayerAnimationState {
-        Idle,
-        Walk,
-        Run,
-        CrouchIdle,
-        CrouchWalk,
-        Jump,
-        Land,
-        AirFlip,
-        Roll,
-        WeaponSwing,
-        Die,
-        Hit,
-        Punch,
-        WeaponStab
-    };
+        enum PlayerAnimationState {
+            Idle,
+            Walk,
+            Run,
+            CrouchIdle,
+            CrouchWalk,
+            Jump,
+            Land,
+            AirFlip,
+            Roll,
+            WeaponSwing,
+            Die,
+            Hit,
+            Punch,
+            WeaponStab
+        };
 
-    // v3 { x offset, y offset, rotation }
-    std::vector<v3<int>> gripPoints {};
-    PlayerAnimationState playerAnimationSet = (PlayerAnimationState)player.getAnimator().getAnimationSet();
-    uint32_t animationFrame = player.getAnimator().getFrame();
+        // v3 { x offset, y offset, rotation }
+        std::vector<v3<int>> gripPoints {};
+        PlayerAnimationState playerAnimationSet = (PlayerAnimationState)player.getAnimator().getAnimationSet();
+        uint32_t animationFrame = player.getAnimator().getFrame();
 
-    switch (playerAnimationSet) {
-        case Idle:
-            gripPoints = {
-                    {-6, 0, 40},
-                    {-5, 3, 40},
-                    {-3, 6, 40},
-                    {-3, 6, 40},
-                    {-3, 6, 40},
-                    {-4, 1, 40},
-                    {-4, -1, 40},
-                    {-3, -5, 40},
-                    {-3, -5, 40},
-                    {-3, -5, 40},
-            };
-            break;
-        case Walk:
-            gripPoints = {
-                    {-6, 3, 40},
-                    {21, 1, 40},
-                    {27, 2, 25},
-                    {27, 7, 15},
-                    {15, 5, 25},
-                    {-3, 0, 40},
-                    {-20, -2, 55},
-                    {-18, -3, 60},
-            };
-            break;
-        case Run:
-            gripPoints = {
-                    {-12, -5, 40},
-                    {-11, -28, 80},
-                    {-14, -10, 55},
-                    {7, 3, 15},
-                    {35, 6, -15},
-                    {52, -28, -100},
-                    {49, -7, -55},
-                    {19, 8, -25},
-            };
-            break;
-        case CrouchIdle:
-            gripPoints = {
-                    {22, -1, 0},
-                    {24, 5, 0},
-                    {24, 7, 0},
-                    {24, 7, 0},
-                    {24, 7, 0},
-                    {24, 7, 0},
-                    {25, 4, 0},
-                    {25, -1, 0},
-                    {25, -1, 0},
-                    {25, -1, 0},
-            };
-            break;
-        case CrouchWalk:
-            gripPoints = {
-                    {22, -1, 0},
-                    {22, -1, 0},
-                    {23, 1, 0},
-                    {23, 1, 0},
-                    {23, 1, 0},
-                    {22, 1, 0},
-                    {22, 1, 0},
-                    {28, 3, 0},
-                    {27, 0, 0},
-                    {23, 0, 0},
-            };
-            break;
-        case Jump:
-            gripPoints = {
-                    {-9, -7, 25},
-                    {-22, -24, 55},
-                    {-9, -33, 90},
-            };
-            break;
-        case Land:
-            gripPoints = {
-                    {15, -70, 0},
-                    {38, -36, 0},
-                    {14, -20, 0},
-                    {-15, -30, 0},
-                    {-22, -31, 0},
-                    {-19, -40, 0},
-                    {-41, -66, 0},
-            };
-            break;
-        case AirFlip:
-            gripPoints = {
-                    {13, -45, -190},
-                    {35, -11, -80},
-                    {-6, -2, 10},
-                    {-35, -22, 80},
-                    {-35, -22, 100},
-                    {-23, -28, 105},
-            };
-            break;
-        case Roll:
-            gripPoints = {
-                    {-8, 0, 40},
-                    {30, -2, 35},
-                    {17, 32, 25},
-                    {-3, 28, 55},
-                    {-45, 27, 55},
-                    {-39, -12, 100},
-                    {-23, -4, 60},
-            };
-            break;
-        case WeaponSwing:
-            gripPoints = {
-                    {-9, -43, -180},
-                    {23, -62, -155},
-                    {59, -45, -125},
-                    {32, 7, 65},
-                    {27, 19, 55},
-                    {12, -10, 95},
-            }; break;
-        case Die:
-            gripPoints = {}; break;
-        case Hit:
-            gripPoints = {}; break;
-        case Punch:
-            gripPoints = {}; break;
-        case WeaponStab:
-            gripPoints = {
-                    {-22, -2, 45},
-                    {-22, -2, 45},
-                    {-12, 0, 45},
-                    {-25, 4, 45},
-                    {-22, 4, 45},
-                    {68, -12, 45},
-                    {63, -11, 45},
-                    {31, -4, 45},
-            }; break;
-        default:
-            break;
-    }
+        switch (playerAnimationSet) {
+            case Idle:
+                gripPoints = {
+                        {-6, 0, 40},
+                        {-5, 3, 40},
+                        {-3, 6, 40},
+                        {-3, 6, 40},
+                        {-3, 6, 40},
+                        {-4, 1, 40},
+                        {-4, -1, 40},
+                        {-3, -5, 40},
+                        {-3, -5, 40},
+                        {-3, -5, 40},
+                };
+                break;
+            case Walk:
+                gripPoints = {
+                        {-6, 3, 40},
+                        {21, 1, 40},
+                        {27, 2, 25},
+                        {27, 7, 15},
+                        {15, 5, 25},
+                        {-3, 0, 40},
+                        {-20, -2, 55},
+                        {-18, -3, 60},
+                };
+                break;
+            case Run:
+                gripPoints = {
+                        {-12, -5, 40},
+                        {-11, -28, 80},
+                        {-14, -10, 55},
+                        {7, 3, 15},
+                        {35, 6, -15},
+                        {52, -28, -100},
+                        {49, -7, -55},
+                        {19, 8, -25},
+                };
+                break;
+            case CrouchIdle:
+                gripPoints = {
+                        {22, -1, 0},
+                        {24, 5, 0},
+                        {24, 7, 0},
+                        {24, 7, 0},
+                        {24, 7, 0},
+                        {24, 7, 0},
+                        {25, 4, 0},
+                        {25, -1, 0},
+                        {25, -1, 0},
+                        {25, -1, 0},
+                };
+                break;
+            case CrouchWalk:
+                gripPoints = {
+                        {22, -1, 0},
+                        {22, -1, 0},
+                        {23, 1, 0},
+                        {23, 1, 0},
+                        {23, 1, 0},
+                        {22, 1, 0},
+                        {22, 1, 0},
+                        {28, 3, 0},
+                        {27, 0, 0},
+                        {23, 0, 0},
+                };
+                break;
+            case Jump:
+                gripPoints = {
+                        {-9, -7, 25},
+                        {-22, -24, 55},
+                        {-9, -33, 90},
+                };
+                break;
+            case Land:
+                gripPoints = {
+                        {15, -70, 0},
+                        {38, -36, 0},
+                        {14, -20, 0},
+                        {-15, -30, 0},
+                        {-22, -31, 0},
+                        {-19, -40, 0},
+                        {-41, -66, 0},
+                };
+                break;
+            case AirFlip:
+                gripPoints = {
+                        {13, -45, -190},
+                        {35, -11, -80},
+                        {-6, -2, 10},
+                        {-35, -22, 80},
+                        {-35, -22, 100},
+                        {-23, -28, 105},
+                };
+                break;
+            case Roll:
+                gripPoints = {
+                        {-8, -2, 40},
+                        {33, -7, 50},
+                        {17, 21, 70},
+                        {4, 20, 110},
+                        {-28, 23, 185},
+                        {-19, 3, 245},
+                        {-18, 12, 360},
+                };
+                break;
+            case WeaponSwing:
+                gripPoints = {
+                        {-9, -43, -180},
+                        {23, -62, -155},
+                        {59, -45, -125},
+                        {32, 7, 65},
+                        {27, 19, 55},
+                        {12, -10, 95},
+                }; break;
+            case Die:
+                gripPoints = {}; break;
+            case Hit:
+                gripPoints = {}; break;
+            case Punch:
+                gripPoints = {
+                        {-8, 4, -50},
+                        {-7, 9, -55},
+                        {-4, 8, -55},
+                        {-4, 8, -55},
+                        {61, -17, 45},
+                }; break;
+            case WeaponStab:
+                gripPoints = {
+                        {-22, -2, 45},
+                        {-22, -2, 45},
+                        {-12, 0, 45},
+                        {-25, 4, 45},
+                        {-25, 4, 45},
+                        {68, -12, 45},
+                        {63, -11, 45},
+                        {31, -4, 45},
+                }; break;
+            default:
+                break;
+        }
 
 
-    int32_t weaponSize = 32;
-    int32_t weaponScale = 2;
-    auto playerCenter = getCenterOfRect(player.pos());
-    SDL_Rect weaponPos = {playerCenter.x + ((player.getPlayerFlip() == SDL_FLIP_HORIZONTAL) ? -30 : -10), player.pos().y, weaponSize * weaponScale, weaponSize * weaponScale};
-    Renderer::TextureDrawProperties weaponProps;
-    weaponProps.rotation = 0.0f;
-    weaponProps.flip = player.getPlayerFlip();
-    weaponProps.rotationOrigin = {(weaponProps.flip == SDL_FLIP_NONE) ? 0 : weaponSize * weaponScale, weaponSize * weaponScale};
+        int32_t weaponSize = 32;
+        int32_t weaponScale = 2;
+        auto playerCenter = getCenterOfRect(player.pos());
+        SDL_Rect weaponPos = {playerCenter.x + ((player.getPlayerFlip() == SDL_FLIP_HORIZONTAL) ? -30 : -10), player.pos().y, weaponSize * weaponScale, weaponSize * weaponScale};
+        Renderer::TextureDrawProperties weaponProps;
+        weaponProps.rotation = 0.0f;
+        weaponProps.flip = player.getPlayerFlip();
+        weaponProps.rotationOrigin = {(weaponProps.flip == SDL_FLIP_NONE) ? 0 : weaponSize * weaponScale, weaponSize * weaponScale};
 
-    // TODO: When The Attack Stance Is Active And An Air F
-    // TODO: Use Interpolation Between Frames For Grip Points And Rotation
-    if (player.getController().playerInCombatStance()) {
-        weaponPos.x += gripPoints[animationFrame].x * ((weaponProps.flip == SDL_FLIP_NONE) ? 1 : -1);
+        if (player.getController().playerInCombatStance()) {
+            weaponPos.x += gripPoints[animationFrame].x * ((weaponProps.flip == SDL_FLIP_NONE) ? 1 : -1);
 
-/*        weaponPos.x += updateInterop(gripPoints[animationFrame].x, gripPoints[nextIndex].x,
-                                                   player._playerHeldItemInteropFrame,
-                                                   player._playerHeldItemInteropSteps);
-        weaponProps.rotation += updateInterop(gripPoints[animationFrame].z, gripPoints[nextIndex].z,
-                                                   player._playerHeldItemInteropFrame,
-                                                   player._playerHeldItemInteropSteps); */
-        // TODO: I Have Reason To Believe This Peice Of Code Is Accessing Elements At Higher Indices Then What Should Be Possible,
-        // Thereby Creating Out-Of-Bounds Errors
-        //int32_t nextIndex = (animationFrame + 1 < gripPoints.size() - 1) ? (animationFrame + 1) : (gripPoints.size() - 1);
+// Interpolation Code For The Weapons, Chnage `previosFrame` To `nextFrame`
+/*
+        size_t previousFrame = (animationFrame > 0) ? animationFrame - 1 : 0;
 
+        int distanceX = gripPoints[animationFrame].x - gripPoints[previousFrame].x;
+        int interpDistX = distanceX - ((distanceX / player._playerHeldItemInteropSteps) * player._playerHeldItemInteropFrame);
+
+        int distanceY = gripPoints[animationFrame].y - gripPoints[previousFrame].y;
+        int interpDistY = distanceY - ((distanceY / player._playerHeldItemInteropSteps) * player._playerHeldItemInteropFrame);
+
+        int distanceZ = gripPoints[animationFrame].z - gripPoints[previousFrame].z;
+        int interpDistZ = distanceZ - ((distanceZ / player._playerHeldItemInteropSteps) * player._playerHeldItemInteropFrame);
+*/
         weaponPos.y += gripPoints[animationFrame].y;
         weaponProps.rotation = gripPoints[animationFrame].z * ((weaponProps.flip == SDL_FLIP_NONE) ? 1.0f : -1.0f);
+/*
+        weaponPos.x += interpDistX;
+        weaponPos.y += interpDistY;
+        weaponProps.rotation += interpDistZ;
+*/
     } else {
         if (playerAnimationSet == Idle) {
             weaponPos.y += gripPoints[animationFrame].y;

@@ -11,7 +11,7 @@
 #include "../AnimationController.hpp"
 #include "../Momentum.hpp"
 
-enum class PlayerMovementState {
+enum class PlayerControllerState {
     Idle,
     Walking,
     Running,
@@ -63,6 +63,25 @@ private:
 
     PlayerController _Controller;
     AnimationController _AnimationController;
+
+    PlayerControllerState _PlayerState;
+    void AnimatePlayerState(PlayerControllerState state, uint32_t frameTime, PlayerActionStatus* actionStatus = nullptr) {
+        _AnimationController.setAnimationIndex((size_t)state);
+        if (_UpdateAnimationFrameTimer.isCompleteReset(frameTime)) {
+            _AnimationController.nextFrame();
+            if (actionStatus != nullptr)
+                (*actionStatus).stage = _AnimationController.getFrame();
+        }
+    }
+    void AnimatePlayerStateDontRepeat(PlayerControllerState state, uint32_t frameTime, PlayerActionStatus* actionStatus = nullptr) {
+        _AnimationController.setAnimationIndex((size_t)state);
+        if (_UpdateAnimationFrameTimer.isCompleteReset(frameTime)) {
+            if (_AnimationController.getFrame() < _AnimationController.getAnimationSetFrameCount() - 1)
+                _AnimationController.nextFrame();
+            if (actionStatus != nullptr)
+                (*actionStatus).stage = _AnimationController.getFrame();
+        }
+    }
 
     void AnimatePlayerIdleState() {
         _AnimationController.setAnimationIndex(0);
@@ -149,10 +168,9 @@ private:
     void AnimatePlayerPunchState() {
         _AnimationController.setAnimationIndex(12);
         constexpr int PLAYER_PUNCH_FRAME_TIME = 80;
-        if (_UpdateAnimationFrameTimer.isCompleteReset(PLAYER_PUNCH_FRAME_TIME)) {
+        /*if (_UpdateAnimationFrameTimer.isCompleteReset(PLAYER_PUNCH_FRAME_TIME)) {
             _AnimationController.nextFrame();
-            _PlayerPunchStatus.stage = _AnimationController.getFrame();
-        }
+        }*/
     }
     void AnimatePlayerWeaponStabState() {
         _AnimationController.setAnimationIndex(13);
@@ -179,7 +197,7 @@ private:
     int32_t _PlayerHealth = _PlayerMaxHealth;
 
     int32_t _playerHeldItemInteropFrame = 0;
-    int32_t _playerHeldItemInteropSteps = 10;
+    int32_t _playerHeldItemInteropSteps = 3;
 
     friend void DrawPlayersHeldItem(Renderer& renderer, Player& player, Item& heldItem);
 public:
