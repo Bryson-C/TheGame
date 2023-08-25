@@ -8,7 +8,6 @@
 #include <string>
 #include <vector>
 
-#include "../../lib/yaml/Yaml.hpp"
 #include "../../Engine/Utility/Rect/Rect.hpp"
 #include "../../Engine/Renderer/Renderer.hpp"
 

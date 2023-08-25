@@ -49,11 +49,15 @@ private:
             jumpStage = 0;
         }
     } _PlayerJumpStatus[2];
-    struct PlayerRollStatus {
-        bool isRolling = false;
-        //bool inAir = false;
-        uint32_t rollStage = 0;
-    } _PlayerRollStatus;
+    struct PlayerActionStatus {
+        bool isActive = false;
+        uint32_t stage = 0;
+    };
+    PlayerActionStatus _PlayerRollStatus{};
+    PlayerActionStatus _PlayerPunchStatus{};
+    PlayerActionStatus _PlayerWeaponSwingStatus{};
+    PlayerActionStatus _PlayerWeaponStabStatus{};
+
 
     Momentum _MomentumX{20}, _MomentumY{300};
 
@@ -117,7 +121,7 @@ private:
         constexpr int PLAYER_ROLL_FRAME_TIME = 80;
         if (_UpdateAnimationFrameTimer.isCompleteReset(PLAYER_ROLL_FRAME_TIME)) {
             _AnimationController.nextFrame();
-            _PlayerRollStatus.rollStage = _AnimationController.getFrame();
+            _PlayerRollStatus.stage = _AnimationController.getFrame();
         }
     }
     void AnimatePlayerWeaponSwingState() {
@@ -125,6 +129,7 @@ private:
         constexpr int PLAYER_WEAPON_SWING_FRAME_TIME = 64;
         if (_UpdateAnimationFrameTimer.isCompleteReset(PLAYER_WEAPON_SWING_FRAME_TIME)) {
             _AnimationController.nextFrame();
+            _PlayerWeaponSwingStatus.stage = _AnimationController.getFrame();
         }
     }
     void AnimatePlayerDieState() {
@@ -143,9 +148,10 @@ private:
     }
     void AnimatePlayerPunchState() {
         _AnimationController.setAnimationIndex(12);
-        constexpr int PLAYER_PUNCH_FRAME_TIME = 64;
+        constexpr int PLAYER_PUNCH_FRAME_TIME = 80;
         if (_UpdateAnimationFrameTimer.isCompleteReset(PLAYER_PUNCH_FRAME_TIME)) {
             _AnimationController.nextFrame();
+            _PlayerPunchStatus.stage = _AnimationController.getFrame();
         }
     }
     void AnimatePlayerWeaponStabState() {
@@ -153,6 +159,7 @@ private:
         constexpr int PLAYER_WEAPON_STAB_FRAME_TIME = 64;
         if (_UpdateAnimationFrameTimer.isCompleteReset(PLAYER_WEAPON_STAB_FRAME_TIME)) {
             _AnimationController.nextFrame();
+            _PlayerWeaponStabStatus.stage = _AnimationController.getFrame();
         }
     }
 

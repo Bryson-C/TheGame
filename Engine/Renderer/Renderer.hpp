@@ -5,9 +5,8 @@
 #ifndef SDL_RENDERER_HPP
 #define SDL_RENDERER_HPP
 
-#ifdef main
+#define PATH_TO_SRC "C:\\Users\\Bryson\\Documents\\Code\\Game"
 
-#endif
 
 #include <iostream>
 #include <vector>
@@ -15,7 +14,10 @@
 
 #include "SDL.h"
 #include "SDL_image.h"
+
+#ifdef main
 #undef main
+#endif
 
 #include "Event.hpp"
 #include "DrawColor.hpp"
@@ -152,8 +154,8 @@ private:
 public:
     //inline FontRenderer() = default;
     inline FontRenderer(Renderer& renderer) {
-        _FontTexture = renderer.loadTexture("X:\\SDL\\Asset\\Font.png", 0, 0, 16 * 10, 16 * 4);
-        _BBFont = renderer.loadTexture("X:\\SDL\\Asset\\BBFont.png", 0, 0, 32 * 26, 32 * 2);
+        _FontTexture = renderer.loadTexture(PATH_TO_SRC"\\Asset\\Font.png", 0, 0, 16 * 10, 16 * 4);
+        _BBFont = renderer.loadTexture(PATH_TO_SRC"\\Asset\\BBFont.png", 0, 0, 32 * 26, 32 * 2);
     }
 
     struct FontProperties {

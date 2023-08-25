@@ -4,6 +4,8 @@
 
 #include "Player.hpp"
 
+#define PATH_TO_SRC "C:\\Users\\Bryson\\Documents\\Code\\Game"
+
 Player::Player(Renderer& renderer, int spawnX, int spawnY) :
         _PlayerHead(spawnX,spawnY, 32, 32),
         _PlayerBody(spawnX, spawnY + 32, 32, 32),
@@ -15,115 +17,114 @@ Player::Player(Renderer& renderer, int spawnX, int spawnY) :
     _PlayerLegs.col = {0,255,0};
     resetPlayerHitbox();
 
-
     std::vector<std::vector<Texture>> playerAnimations {
             {
                 // idle
-                    renderer.loadTexture("X:\\SDL\\Asset\\SpriteSheets\\all.png", 48*0, 0, 48, 48),
-                    renderer.loadTexture("X:\\SDL\\Asset\\SpriteSheets\\all.png", 48*1, 0, 48, 48),
-                    renderer.loadTexture("X:\\SDL\\Asset\\SpriteSheets\\all.png", 48*2, 0, 48, 48),
-                    renderer.loadTexture("X:\\SDL\\Asset\\SpriteSheets\\all.png", 48*3, 0, 48, 48),
-                    renderer.loadTexture("X:\\SDL\\Asset\\SpriteSheets\\all.png", 48*4, 0, 48, 48),
-                    renderer.loadTexture("X:\\SDL\\Asset\\SpriteSheets\\all.png", 48*5, 0, 48, 48),
-                    renderer.loadTexture("X:\\SDL\\Asset\\SpriteSheets\\all.png", 48*6, 0, 48, 48),
-                    renderer.loadTexture("X:\\SDL\\Asset\\SpriteSheets\\all.png", 48*7, 0, 48, 48),
-                    renderer.loadTexture("X:\\SDL\\Asset\\SpriteSheets\\all.png", 48*8, 0, 48, 48),
-                    renderer.loadTexture("X:\\SDL\\Asset\\SpriteSheets\\all.png", 48*9, 0, 48, 48),
+                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48*0, 0, 48, 48),
+                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48*1, 0, 48, 48),
+                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48*2, 0, 48, 48),
+                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48*3, 0, 48, 48),
+                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48*4, 0, 48, 48),
+                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48*5, 0, 48, 48),
+                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48*6, 0, 48, 48),
+                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48*7, 0, 48, 48),
+                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48*8, 0, 48, 48),
+                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48*9, 0, 48, 48),
             },
             {
                 // walk
-                    renderer.loadTexture("X:\\SDL\\Asset\\SpriteSheets\\all.png", 48 * 0, 48 * 1, 48, 48),
-                    renderer.loadTexture("X:\\SDL\\Asset\\SpriteSheets\\all.png", 48 * 1, 48 * 1, 48, 48),
-                    renderer.loadTexture("X:\\SDL\\Asset\\SpriteSheets\\all.png", 48 * 2, 48 * 1, 48, 48),
-                    renderer.loadTexture("X:\\SDL\\Asset\\SpriteSheets\\all.png", 48 * 3, 48 * 1, 48, 48),
-                    renderer.loadTexture("X:\\SDL\\Asset\\SpriteSheets\\all.png", 48 * 4, 48 * 1, 48, 48),
-                    renderer.loadTexture("X:\\SDL\\Asset\\SpriteSheets\\all.png", 48 * 5, 48 * 1, 48, 48),
-                    renderer.loadTexture("X:\\SDL\\Asset\\SpriteSheets\\all.png", 48 * 6, 48 * 1, 48, 48),
-                    renderer.loadTexture("X:\\SDL\\Asset\\SpriteSheets\\all.png", 48 * 7, 48 * 1, 48, 48),
+                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 0, 48 * 1, 48, 48),
+                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 1, 48 * 1, 48, 48),
+                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 2, 48 * 1, 48, 48),
+                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 3, 48 * 1, 48, 48),
+                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 4, 48 * 1, 48, 48),
+                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 5, 48 * 1, 48, 48),
+                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 6, 48 * 1, 48, 48),
+                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 7, 48 * 1, 48, 48),
             },
             {
                 // run
-                    renderer.loadTexture("X:\\SDL\\Asset\\SpriteSheets\\all.png", 48 * 0, 48 * 2, 48, 48),
-                    renderer.loadTexture("X:\\SDL\\Asset\\SpriteSheets\\all.png", 48 * 1, 48 * 2, 48, 48),
-                    renderer.loadTexture("X:\\SDL\\Asset\\SpriteSheets\\all.png", 48 * 2, 48 * 2, 48, 48),
-                    renderer.loadTexture("X:\\SDL\\Asset\\SpriteSheets\\all.png", 48 * 3, 48 * 2, 48, 48),
-                    renderer.loadTexture("X:\\SDL\\Asset\\SpriteSheets\\all.png", 48 * 4, 48 * 2, 48, 48),
-                    renderer.loadTexture("X:\\SDL\\Asset\\SpriteSheets\\all.png", 48 * 5, 48 * 2, 48, 48),
-                    renderer.loadTexture("X:\\SDL\\Asset\\SpriteSheets\\all.png", 48 * 6, 48 * 2, 48, 48),
-                    renderer.loadTexture("X:\\SDL\\Asset\\SpriteSheets\\all.png", 48 * 7, 48 * 2, 48, 48),
+                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 0, 48 * 2, 48, 48),
+                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 1, 48 * 2, 48, 48),
+                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 2, 48 * 2, 48, 48),
+                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 3, 48 * 2, 48, 48),
+                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 4, 48 * 2, 48, 48),
+                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 5, 48 * 2, 48, 48),
+                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 6, 48 * 2, 48, 48),
+                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 7, 48 * 2, 48, 48),
             },
             {
                 // crouch idle
-                    renderer.loadTexture("X:\\SDL\\Asset\\SpriteSheets\\all.png", 48 * 0, 48 * 3, 48, 48),
-                    renderer.loadTexture("X:\\SDL\\Asset\\SpriteSheets\\all.png", 48 * 1, 48 * 3, 48, 48),
-                    renderer.loadTexture("X:\\SDL\\Asset\\SpriteSheets\\all.png", 48 * 2, 48 * 3, 48, 48),
-                    renderer.loadTexture("X:\\SDL\\Asset\\SpriteSheets\\all.png", 48 * 3, 48 * 3, 48, 48),
-                    renderer.loadTexture("X:\\SDL\\Asset\\SpriteSheets\\all.png", 48 * 4, 48 * 3, 48, 48),
-                    renderer.loadTexture("X:\\SDL\\Asset\\SpriteSheets\\all.png", 48 * 5, 48 * 3, 48, 48),
-                    renderer.loadTexture("X:\\SDL\\Asset\\SpriteSheets\\all.png", 48 * 6, 48 * 3, 48, 48),
-                    renderer.loadTexture("X:\\SDL\\Asset\\SpriteSheets\\all.png", 48 * 7, 48 * 3, 48, 48),
-                    renderer.loadTexture("X:\\SDL\\Asset\\SpriteSheets\\all.png", 48 * 8, 48 * 3, 48, 48),
-                    renderer.loadTexture("X:\\SDL\\Asset\\SpriteSheets\\all.png", 48 * 9, 48 * 3, 48, 48),
+                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 0, 48 * 3, 48, 48),
+                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 1, 48 * 3, 48, 48),
+                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 2, 48 * 3, 48, 48),
+                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 3, 48 * 3, 48, 48),
+                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 4, 48 * 3, 48, 48),
+                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 5, 48 * 3, 48, 48),
+                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 6, 48 * 3, 48, 48),
+                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 7, 48 * 3, 48, 48),
+                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 8, 48 * 3, 48, 48),
+                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 9, 48 * 3, 48, 48),
             },
             {
                 // crouch walk
-                    renderer.loadTexture("X:\\SDL\\Asset\\SpriteSheets\\all.png", 48 * 0, 48 * 4, 48, 48),
-                    renderer.loadTexture("X:\\SDL\\Asset\\SpriteSheets\\all.png", 48 * 1, 48 * 4, 48, 48),
-                    renderer.loadTexture("X:\\SDL\\Asset\\SpriteSheets\\all.png", 48 * 2, 48 * 4, 48, 48),
-                    renderer.loadTexture("X:\\SDL\\Asset\\SpriteSheets\\all.png", 48 * 3, 48 * 4, 48, 48),
-                    renderer.loadTexture("X:\\SDL\\Asset\\SpriteSheets\\all.png", 48 * 4, 48 * 4, 48, 48),
-                    renderer.loadTexture("X:\\SDL\\Asset\\SpriteSheets\\all.png", 48 * 5, 48 * 4, 48, 48),
-                    renderer.loadTexture("X:\\SDL\\Asset\\SpriteSheets\\all.png", 48 * 6, 48 * 4, 48, 48),
-                    renderer.loadTexture("X:\\SDL\\Asset\\SpriteSheets\\all.png", 48 * 7, 48 * 4, 48, 48),
-                    renderer.loadTexture("X:\\SDL\\Asset\\SpriteSheets\\all.png", 48 * 8, 48 * 4, 48, 48),
-                    renderer.loadTexture("X:\\SDL\\Asset\\SpriteSheets\\all.png", 48 * 9, 48 * 4, 48, 48),
+                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 0, 48 * 4, 48, 48),
+                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 1, 48 * 4, 48, 48),
+                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 2, 48 * 4, 48, 48),
+                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 3, 48 * 4, 48, 48),
+                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 4, 48 * 4, 48, 48),
+                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 5, 48 * 4, 48, 48),
+                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 6, 48 * 4, 48, 48),
+                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 7, 48 * 4, 48, 48),
+                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 8, 48 * 4, 48, 48),
+                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 9, 48 * 4, 48, 48),
             },
             {
                 // jump
-                    renderer.loadTexture("X:\\SDL\\Asset\\SpriteSheets\\all.png", 48 * 0, 48 * 5, 48, 48),
-                    renderer.loadTexture("X:\\SDL\\Asset\\SpriteSheets\\all.png", 48 * 1, 48 * 5, 48, 48),
-                    renderer.loadTexture("X:\\SDL\\Asset\\SpriteSheets\\all.png", 48 * 2, 48 * 5, 48, 48),
+                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 0, 48 * 5, 48, 48),
+                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 1, 48 * 5, 48, 48),
+                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 2, 48 * 5, 48, 48),
 
             },
             {
                 // land
-                    renderer.loadTexture("X:\\SDL\\Asset\\SpriteSheets\\all.png", 48 * 0, 48 * 6, 48, 48),
-                    renderer.loadTexture("X:\\SDL\\Asset\\SpriteSheets\\all.png", 48 * 1, 48 * 6, 48, 48),
-                    renderer.loadTexture("X:\\SDL\\Asset\\SpriteSheets\\all.png", 48 * 2, 48 * 6, 48, 48),
-                    renderer.loadTexture("X:\\SDL\\Asset\\SpriteSheets\\all.png", 48 * 3, 48 * 6, 48, 48),
-                    renderer.loadTexture("X:\\SDL\\Asset\\SpriteSheets\\all.png", 48 * 4, 48 * 6, 48, 48),
-                    renderer.loadTexture("X:\\SDL\\Asset\\SpriteSheets\\all.png", 48 * 5, 48 * 6, 48, 48),
-                    renderer.loadTexture("X:\\SDL\\Asset\\SpriteSheets\\all.png", 48 * 6, 48 * 6, 48, 48),
-                    renderer.loadTexture("X:\\SDL\\Asset\\SpriteSheets\\all.png", 48 * 7, 48 * 6, 48, 48),
-                    renderer.loadTexture("X:\\SDL\\Asset\\SpriteSheets\\all.png", 48 * 8, 48 * 6, 48, 48),
+                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 0, 48 * 6, 48, 48),
+                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 1, 48 * 6, 48, 48),
+                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 2, 48 * 6, 48, 48),
+                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 3, 48 * 6, 48, 48),
+                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 4, 48 * 6, 48, 48),
+                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 5, 48 * 6, 48, 48),
+                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 6, 48 * 6, 48, 48),
+                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 7, 48 * 6, 48, 48),
+                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 8, 48 * 6, 48, 48),
             },
             {
                 // air flip
-                    renderer.loadTexture("X:\\SDL\\Asset\\SpriteSheets\\all.png", 48 * 0, 48 * 7, 48, 48),
-                    renderer.loadTexture("X:\\SDL\\Asset\\SpriteSheets\\all.png", 48 * 1, 48 * 7, 48, 48),
-                    renderer.loadTexture("X:\\SDL\\Asset\\SpriteSheets\\all.png", 48 * 2, 48 * 7, 48, 48),
-                    renderer.loadTexture("X:\\SDL\\Asset\\SpriteSheets\\all.png", 48 * 3, 48 * 7, 48, 48),
-                    renderer.loadTexture("X:\\SDL\\Asset\\SpriteSheets\\all.png", 48 * 4, 48 * 7, 48, 48),
-                    renderer.loadTexture("X:\\SDL\\Asset\\SpriteSheets\\all.png", 48 * 5, 48 * 7, 48, 48),
+                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 0, 48 * 7, 48, 48),
+                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 1, 48 * 7, 48, 48),
+                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 2, 48 * 7, 48, 48),
+                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 3, 48 * 7, 48, 48),
+                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 4, 48 * 7, 48, 48),
+                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 5, 48 * 7, 48, 48),
             },
             {
                 // roll
-                    renderer.loadTexture("X:\\SDL\\Asset\\SpriteSheets\\all.png", 48 * 0, 48 * 8, 48, 48),
-                    renderer.loadTexture("X:\\SDL\\Asset\\SpriteSheets\\all.png", 48 * 1, 48 * 8, 48, 48),
-                    renderer.loadTexture("X:\\SDL\\Asset\\SpriteSheets\\all.png", 48 * 2, 48 * 8, 48, 48),
-                    renderer.loadTexture("X:\\SDL\\Asset\\SpriteSheets\\all.png", 48 * 3, 48 * 8, 48, 48),
-                    renderer.loadTexture("X:\\SDL\\Asset\\SpriteSheets\\all.png", 48 * 4, 48 * 8, 48, 48),
-                    renderer.loadTexture("X:\\SDL\\Asset\\SpriteSheets\\all.png", 48 * 5, 48 * 8, 48, 48),
-                    renderer.loadTexture("X:\\SDL\\Asset\\SpriteSheets\\all.png", 48 * 6, 48 * 8, 48, 48),
+                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 0, 48 * 8, 48, 48),
+                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 1, 48 * 8, 48, 48),
+                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 2, 48 * 8, 48, 48),
+                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 3, 48 * 8, 48, 48),
+                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 4, 48 * 8, 48, 48),
+                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 5, 48 * 8, 48, 48),
+                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 6, 48 * 8, 48, 48),
             },
             {
                 // weapon swing
-                    renderer.loadTexture("X:\\SDL\\Asset\\SpriteSheets\\all.png", 48 * 0, 48 * 9, 48, 48),
-                    renderer.loadTexture("X:\\SDL\\Asset\\SpriteSheets\\all.png", 48 * 1, 48 * 9, 48, 48),
-                    renderer.loadTexture("X:\\SDL\\Asset\\SpriteSheets\\all.png", 48 * 2, 48 * 9, 48, 48),
-                    renderer.loadTexture("X:\\SDL\\Asset\\SpriteSheets\\all.png", 48 * 3, 48 * 9, 48, 48),
-                    renderer.loadTexture("X:\\SDL\\Asset\\SpriteSheets\\all.png", 48 * 4, 48 * 9, 48, 48),
-                    renderer.loadTexture("X:\\SDL\\Asset\\SpriteSheets\\all.png", 48 * 5, 48 * 9, 48, 48),
+                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 0, 48 * 9, 48, 48),
+                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 1, 48 * 9, 48, 48),
+                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 2, 48 * 9, 48, 48),
+                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 3, 48 * 9, 48, 48),
+                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 4, 48 * 9, 48, 48),
+                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 5, 48 * 9, 48, 48),
             },
             {
                 // die
@@ -133,24 +134,24 @@ Player::Player(Renderer& renderer, int spawnX, int spawnY) :
             },
             {
                 // punch
-                    renderer.loadTexture("X:\\SDL\\Asset\\SpriteSheets\\all.png", 48 * 0, 48 * 12, 48, 48),
-                    renderer.loadTexture("X:\\SDL\\Asset\\SpriteSheets\\all.png", 48 * 1, 48 * 12, 48, 48),
-                    renderer.loadTexture("X:\\SDL\\Asset\\SpriteSheets\\all.png", 48 * 2, 48 * 12, 48, 48),
-                    renderer.loadTexture("X:\\SDL\\Asset\\SpriteSheets\\all.png", 48 * 3, 48 * 12, 48, 48),
-                    renderer.loadTexture("X:\\SDL\\Asset\\SpriteSheets\\all.png", 48 * 4, 48 * 12, 48, 48),
-                    renderer.loadTexture("X:\\SDL\\Asset\\SpriteSheets\\all.png", 48 * 5, 48 * 12, 48, 48),
-                    renderer.loadTexture("X:\\SDL\\Asset\\SpriteSheets\\all.png", 48 * 6, 48 * 12, 48, 48),
-                    renderer.loadTexture("X:\\SDL\\Asset\\SpriteSheets\\all.png", 48 * 7, 48 * 12, 48, 48),
+                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 0, 48 * 12, 48, 48),
+                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 1, 48 * 12, 48, 48),
+                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 2, 48 * 12, 48, 48),
+                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 3, 48 * 12, 48, 48),
+                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 4, 48 * 12, 48, 48),
+                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 5, 48 * 12, 48, 48),
+                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 6, 48 * 12, 48, 48),
+                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 7, 48 * 12, 48, 48),
             },
             {
                 // weapon stab
-                    renderer.loadTexture("X:\\SDL\\Asset\\SpriteSheets\\all.png", 48 * 0, 48 * 13, 48, 48),
-                    renderer.loadTexture("X:\\SDL\\Asset\\SpriteSheets\\all.png", 48 * 1, 48 * 13, 48, 48),
-                    renderer.loadTexture("X:\\SDL\\Asset\\SpriteSheets\\all.png", 48 * 2, 48 * 13, 48, 48),
-                    renderer.loadTexture("X:\\SDL\\Asset\\SpriteSheets\\all.png", 48 * 3, 48 * 13, 48, 48),
-                    renderer.loadTexture("X:\\SDL\\Asset\\SpriteSheets\\all.png", 48 * 4, 48 * 13, 48, 48),
-                    renderer.loadTexture("X:\\SDL\\Asset\\SpriteSheets\\all.png", 48 * 5, 48 * 13, 48, 48),
-                    renderer.loadTexture("X:\\SDL\\Asset\\SpriteSheets\\all.png", 48 * 6, 48 * 13, 48, 48),
+                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 0, 48 * 13, 48, 48),
+                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 1, 48 * 13, 48, 48),
+                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 2, 48 * 13, 48, 48),
+                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 3, 48 * 13, 48, 48),
+                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 4, 48 * 13, 48, 48),
+                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 5, 48 * 13, 48, 48),
+                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 6, 48 * 13, 48, 48),
             }
     };
 
@@ -262,18 +263,18 @@ void Player::update(Event& event, Scene& scene, std::vector<Rect>& possibleColli
     auto shiftHeld = event.keyState()[SDL_SCANCODE_LSHIFT];
     auto aHeld = event.keyState()[SDL_SCANCODE_A];
     auto dHeld = event.keyState()[SDL_SCANCODE_D];
-    if (aHeld && playerCanMove[3] && !_PlayerRollStatus.isRolling) {
+    if (aHeld && playerCanMove[3] && !_PlayerRollStatus.isActive) {
         _MomentumX.pushDontExceed((shiftHeld) ? 11 : 6, (shiftHeld) ? 11 : 6);
         _PlayerFacingRight = false;
     }
-    else if (dHeld && playerCanMove[1] && !_PlayerRollStatus.isRolling) {
+    else if (dHeld && playerCanMove[1] && !_PlayerRollStatus.isActive) {
         _MomentumX.pushDontExceed((shiftHeld) ? -11 : -6, (shiftHeld) ? 11 : 6);
         _PlayerFacingRight = true;
     }
-    if (event.keyState()[SDL_SCANCODE_LALT] && !_PlayerRollStatus.isRolling && _PlayerJumpStatus[0].canJump) {
-        _PlayerRollStatus.isRolling = true;
+    if (event.keyState()[SDL_SCANCODE_LALT] && !_PlayerRollStatus.isActive && _PlayerJumpStatus[0].canJump) {
+        _PlayerRollStatus.isActive = true;
     }
-    if (event.keyState()[SDL_SCANCODE_SPACE] && playerCanMove[0] && !_PlayerRollStatus.isRolling) {
+    if (event.keyState()[SDL_SCANCODE_SPACE] && playerCanMove[0] && !_PlayerRollStatus.isActive) {
         if (_PlayerJumpStatus[0].canJump) {
             _PlayerJumpStatus[0].reset();
             _PlayerJumpStatus[1].canJump = true;
@@ -289,20 +290,56 @@ void Player::update(Event& event, Scene& scene, std::vector<Rect>& possibleColli
             _MomentumY.push(maxJumpHeight);
         }
     }
-
+    if (event.mouseDownL()) {
+        if (_Controller.playerInCombatStance()) {
+            if (event.keyState()[SDL_SCANCODE_S]) {
+                _PlayerWeaponStabStatus.isActive = true;
+                printf("Stab\n");
+            } else {
+                _PlayerWeaponSwingStatus.isActive = true;
+                printf("Swing\n");
+            }
+        } else {
+            _PlayerPunchStatus.isActive = true;
+        }
+    }
 
     scene.moveWorld(_MomentumX.currentMomentum, _MomentumY.currentMomentum);
     _MomentumX.applyForce();
     _MomentumY.applyForce();
 
     uint32_t timeTillNextFrame;
+    if (_PlayerWeaponSwingStatus.isActive) {
+        timeTillNextFrame = 64;
+        AnimatePlayerWeaponSwingState();
+        if (_PlayerWeaponSwingStatus.stage >= 5) {
+            _PlayerWeaponSwingStatus.isActive = false;
+            _PlayerWeaponSwingStatus.stage = 0;
+        }
+    }
 
-    if (_PlayerRollStatus.isRolling) {
+    if (_PlayerPunchStatus.isActive) {
+        timeTillNextFrame = 64;
+        AnimatePlayerPunchState();
+        if (_PlayerPunchStatus.stage >= 7) {
+            _PlayerPunchStatus.isActive = false;
+            _PlayerPunchStatus.stage = 0;
+        }
+    }
+    if (_PlayerWeaponStabStatus.isActive) {
+        timeTillNextFrame = 64;
+        AnimatePlayerWeaponStabState();
+        if (_PlayerWeaponStabStatus.stage >= 6) {
+            _PlayerWeaponStabStatus.isActive = false;
+            _PlayerWeaponStabStatus.stage = 0;
+        }
+    }
+    if (_PlayerRollStatus.isActive) {
         timeTillNextFrame = 50;
         AnimatePlayerRollState();
-        if (_PlayerRollStatus.rollStage >= 6) {
-            _PlayerRollStatus.isRolling = false;
-            _PlayerRollStatus.rollStage = 0;
+        if (_PlayerRollStatus.stage >= 6) {
+            _PlayerRollStatus.isActive = false;
+            _PlayerRollStatus.stage = 0;
         } else {
             _MomentumX.pushDontExceed((_PlayerFacingRight) ? -11 : 11, 11);
         }
@@ -326,7 +363,7 @@ void Player::update(Event& event, Scene& scene, std::vector<Rect>& possibleColli
             AnimatePlayerJumpState();
         }
     } else {
-        if ((aHeld || dHeld)) {
+        if ((aHeld || dHeld) && !_PlayerPunchStatus.isActive) {
             // Running
             if (shiftHeld) {
                 timeTillNextFrame = 50;
@@ -338,10 +375,13 @@ void Player::update(Event& event, Scene& scene, std::vector<Rect>& possibleColli
             }
         } else {
             // Idle
-            timeTillNextFrame = 64;
-            AnimatePlayerIdleState();
+            if (!_PlayerPunchStatus.isActive) {
+                timeTillNextFrame = 64;
+                AnimatePlayerIdleState();
+            }
         }
     }
+
 
     //_playerHeldItemInteropNeedsUpdate = _UpdateAnimationFrameTimer.getTime() > ((timeTillNextFrame * _playerHeldItemInteropFrame) / _playerHeldItemInteropSteps);
     _playerHeldItemInteropFrame = _UpdateAnimationFrameTimer.getTime() / (timeTillNextFrame / _playerHeldItemInteropSteps);
@@ -396,6 +436,11 @@ void DrawPlayersHeldItem(Renderer& renderer, Player& player, Item& heldItem) {
         Land,
         AirFlip,
         Roll,
+        WeaponSwing,
+        Die,
+        Hit,
+        Punch,
+        WeaponStab
     };
 
     // v3 { x offset, y offset, rotation }
@@ -490,14 +535,51 @@ void DrawPlayersHeldItem(Renderer& renderer, Player& player, Item& heldItem) {
             break;
         case AirFlip:
             gripPoints = {
-                    {},
+                    {13, -45, -190},
+                    {35, -11, -80},
+                    {-6, -2, 10},
+                    {-35, -22, 80},
+                    {-35, -22, 100},
+                    {-23, -28, 105},
             };
             break;
         case Roll:
             gripPoints = {
-                    {},
+                    {-8, 0, 40},
+                    {30, -2, 35},
+                    {17, 32, 25},
+                    {-3, 28, 55},
+                    {-45, 27, 55},
+                    {-39, -12, 100},
+                    {-23, -4, 60},
             };
             break;
+        case WeaponSwing:
+            gripPoints = {
+                    {-9, -43, -180},
+                    {23, -62, -155},
+                    {59, -45, -125},
+                    {32, 7, 65},
+                    {27, 19, 55},
+                    {12, -10, 95},
+            }; break;
+        case Die:
+            gripPoints = {}; break;
+        case Hit:
+            gripPoints = {}; break;
+        case Punch:
+            gripPoints = {}; break;
+        case WeaponStab:
+            gripPoints = {
+                    {-22, -2, 45},
+                    {-22, -2, 45},
+                    {-12, 0, 45},
+                    {-25, 4, 45},
+                    {-22, 4, 45},
+                    {68, -12, 45},
+                    {63, -11, 45},
+                    {31, -4, 45},
+            }; break;
         default:
             break;
     }
@@ -512,6 +594,7 @@ void DrawPlayersHeldItem(Renderer& renderer, Player& player, Item& heldItem) {
     weaponProps.flip = player.getPlayerFlip();
     weaponProps.rotationOrigin = {(weaponProps.flip == SDL_FLIP_NONE) ? 0 : weaponSize * weaponScale, weaponSize * weaponScale};
 
+    // TODO: When The Attack Stance Is Active And An Air F
     // TODO: Use Interpolation Between Frames For Grip Points And Rotation
     if (player.getController().playerInCombatStance()) {
         weaponPos.x += gripPoints[animationFrame].x * ((weaponProps.flip == SDL_FLIP_NONE) ? 1 : -1);
@@ -543,5 +626,3 @@ void DrawPlayersHeldItem(Renderer& renderer, Player& player, Item& heldItem) {
     heldItem.draw(renderer, weaponPos, weaponProps);
 
 }
-
-

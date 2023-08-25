@@ -33,17 +33,17 @@ bool Item::validItem() {
 Item ItemSpawnList::Spawn(ItemSpawnList::ItemID id, Renderer &renderer) {
     switch (id) {
         case ItemID::GrassBlock:
-            return Item(ItemType::Block, ItemID::GrassBlock, renderer.loadTexture(R"(X:\SDL\Asset\Tileset64.png)", 0, 0, 64, 64), {0,0,64,64});
+            return Item(ItemType::Block, ItemID::GrassBlock, renderer.loadTexture(PATH_TO_SRC"\\Asset\\Tileset64.png", 0, 0, 64, 64), {0,0,64,64});
         case ItemID::DirtBlock:
-            return Item(ItemType::Block, ItemID::DirtBlock, renderer.loadTexture(R"(X:\SDL\Asset\Tileset64.png)", 64, 0, 64, 64), {0,0,64,64});
+            return Item(ItemType::Block, ItemID::DirtBlock, renderer.loadTexture(PATH_TO_SRC"\\Asset\\Tileset64.png", 64, 0, 64, 64), {0,0,64,64});
         case ItemID::StoneBlock:
-            return Item(ItemType::Block, ItemID::StoneBlock, renderer.loadTexture(R"(X:\SDL\Asset\Tileset64.png)", 128, 0, 64, 64), {0,0,64,64});
+            return Item(ItemType::Block, ItemID::StoneBlock, renderer.loadTexture(PATH_TO_SRC"\\Asset\\Tileset64.png", 128, 0, 64, 64), {0,0,64,64});
         case ItemID::TestPickaxe:
-            return Item(ItemType::Tool, ItemID::TestPickaxe, renderer.loadTexture(R"(X:\SDL\Asset\pickaxe.png)", 0, 0, 200, 200), {0,0,64,64});
+            return Item(ItemType::Tool, ItemID::TestPickaxe, renderer.loadTexture(PATH_TO_SRC"\\Asset\\pickaxe.png", 0, 0, 200, 200), {0,0,64,64});
         case ItemID::TestSword:
-            return Item(ItemType::Weapon, ItemID::TestSword, renderer.loadTexture(R"(X:\SDL\Asset\sword.png)", 0, 0, 32, 32), {0,0,64,64});
+            return Item(ItemType::Weapon, ItemID::TestSword, renderer.loadTexture(PATH_TO_SRC"\\Asset\\sword.png", 0, 0, 32, 32), {0,0,64,64});
         case ItemID::TestTome:
-            return Item(ItemType::MagicalItem, ItemID::TestTome, renderer.loadTexture(R"(X:\SDL\Asset\Spell_Tome.png)", 0, 0, 32, 32), {0,0,64,64});
+            return Item(ItemType::MagicalItem, ItemID::TestTome, renderer.loadTexture(PATH_TO_SRC"\\Asset\\Spell_Tome.png", 0, 0, 32, 32), {0,0,64,64});
         default:
             std::cerr << "Cannot Find Item Of Id: " << (int)id << "\n";
     }

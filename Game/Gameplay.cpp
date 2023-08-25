@@ -96,6 +96,8 @@ auto Game::WorldDemo(Renderer &renderer) -> int {
 }
 #endif
 
+#define PATH_TO_SRC "C:\\Users\\Bryson\\Documents\\Code\\Game"
+
 
 struct Chunk {
 private:
@@ -193,10 +195,10 @@ public:
 
 auto CheckAnimations(Renderer& renderer) -> int {
     Player player(renderer, 100,100);
-    FontRenderer FontRenderer(renderer);
+    FontRenderer fontRenderer(renderer);
 
 
-    std::ofstream writeFile("X:\\SDL\\Asset\\SpriteSheets\\offsets.txt", std::ios::trunc);
+    std::ofstream writeFile(PATH_TO_SRC"\\Asset\\SpriteSheets\\offsets.txt", std::ios::trunc);
     SDL_Rect saveButton = {0,0,100,30},
              rotateLeftButton = {120, 0, 50, 30},
              rotateRightButton = {180, 0, 50, 30};
@@ -213,7 +215,7 @@ auto CheckAnimations(Renderer& renderer) -> int {
     objProps.rotation = 0.0f;
     objProps.rotationOrigin = {0, objSize * objScale};
     objProps.flip = SDL_FLIP_NONE;
-    auto objTexture = renderer.loadTexture("X:\\SDL\\Asset\\sword.png", 0, 0);
+    auto objTexture = renderer.loadTexture(PATH_TO_SRC"\\Asset\\sword.png", 0, 0);
 
     while (renderer.gameLoopIsValid()) {
         auto events = renderer.pollEvents();
@@ -261,12 +263,15 @@ auto CheckAnimations(Renderer& renderer) -> int {
         auto col = renderer.getColor();
         renderer.setColor(40,40,40);
         renderer.drawRect(saveButton);
+        fontRenderer.drawText(renderer, "Save", saveButton.x, saveButton.y);
         renderer.drawRect(rotateLeftButton);
+        fontRenderer.drawText(renderer, "Rotate Left", saveButton.x, saveButton.y);
         renderer.drawRect(rotateRightButton);
+        fontRenderer.drawText(renderer, "Rotate Right", saveButton.x, saveButton.y);
         renderer.setColor(col);
 
-        FontRenderer.drawNumber(renderer, heldObjOffset.x, heldObj.x, heldObj.y - 30);
-        FontRenderer.drawNumber(renderer, heldObjOffset.y, heldObj.x + 50, heldObj.y - 30);
+        fontRenderer.drawNumber(renderer, heldObjOffset.x, heldObj.x, heldObj.y - 30);
+        fontRenderer.drawNumber(renderer, heldObjOffset.y, heldObj.x + 50, heldObj.y - 30);
 
 
         if (events.mouseDownL()) {
@@ -301,8 +306,8 @@ auto CheckAnimations(Renderer& renderer) -> int {
 
 
 
-        FontRenderer.drawNumber(renderer, playerAnimator.getAnimationSet(), 170, 30);
-        FontRenderer.drawNumber(renderer, playerAnimator.getFrame(), 200, 30);
+        fontRenderer.drawNumber(renderer, playerAnimator.getAnimationSet(), 170, 30);
+        fontRenderer.drawNumber(renderer, playerAnimator.getFrame(), 200, 30);
 
 
 
@@ -322,16 +327,16 @@ auto Game::RunGame(Renderer& renderer) -> int {
     player.centerPlayerSprite(renderer);
 
     Texture backgroundTextures[] = {
-            renderer.loadTexture(R"(X:\SDL\Asset\BG.png)"),
-            renderer.loadTexture(R"(X:\SDL\Asset\FG.png)")
+            renderer.loadTexture(PATH_TO_SRC"\\Asset\\BG.png"),
+            renderer.loadTexture(PATH_TO_SRC"\\Asset\\FG.png")
     };
 
 
     // Load World Sprite Sheet
     Texture tileTextures[] = {
-            renderer.loadTexture(R"(X:\SDL\Asset\Tileset64.png)", 0, 0, 64, 64),
-            renderer.loadTexture(R"(X:\SDL\Asset\Tileset64.png)", 64, 0, 64, 64),
-            renderer.loadTexture(R"(X:\SDL\Asset\Tileset64.png)", 128, 0, 64, 64),
+            renderer.loadTexture(PATH_TO_SRC"\\Asset\\Tileset64.png", 0, 0, 64, 64),
+            renderer.loadTexture(PATH_TO_SRC"\\Asset\\Tileset64.png", 64, 0, 64, 64),
+            renderer.loadTexture(PATH_TO_SRC"\\Asset\\Tileset64.png", 128, 0, 64, 64),
     };
 
     // generate world
