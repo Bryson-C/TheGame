@@ -1,0 +1,17 @@
+{
+    "BlankItem" : {
+        "name": "None",
+        "id": "None",
+        "type": "None",
+        "itemPos": [0,0,64,64],
+        "desc": "",
+        "textureSrc": "\\Asset\\Tileset64.png",
+        "texturePos": [0,0,64,64]
+    },
+    "Item1" : {
+        "name" : "Hello World!",
+        "id": "TestingTool",
+        "type": "Tool"
+    },
+    "Item2" : {}
+}
