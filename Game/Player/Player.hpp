@@ -240,7 +240,7 @@ public:
 
     //inline void setPlayerDirect(PlayerDirection dir) { _PlayerFacingRight = (dir == PlayerDirection::RIGHT) ? true : false; }
 
-    void update(Event& event, Scene& scene, std::vector<Rect>& possibleCollisions);
+    void update(Event& event, Scene& scene, World& world);
 
     uint32_t getMaxJumpHeight() const { return _MaxJumpHeight; }
 

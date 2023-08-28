@@ -96,7 +96,6 @@ auto Game::WorldDemo(Renderer &renderer) -> int {
 }
 #endif
 
-#define PATH_TO_SRC "X:\\SDL"
 
 
 struct Chunk {
@@ -198,7 +197,7 @@ auto CheckAnimations(Renderer& renderer) -> int {
     FontRenderer fontRenderer(renderer);
 
 
-    std::ofstream writeFile(PATH_TO_SRC"\\Asset\\SpriteSheets\\offsets.txt", std::ios::trunc);
+    std::ofstream writeFile(renderer.getPathToSrc().string() + "\\Asset\\SpriteSheets\\offsets.txt", std::ios::trunc);
     SDL_Rect saveButton = {0,0,100,30},
              rotateLeftButton = {120, 0, 50, 30},
              rotateRightButton = {180, 0, 50, 30};
@@ -215,7 +214,7 @@ auto CheckAnimations(Renderer& renderer) -> int {
     objProps.rotation = 0.0f;
     objProps.rotationOrigin = {0, objSize * objScale};
     objProps.flip = SDL_FLIP_NONE;
-    auto objTexture = renderer.loadTexture(PATH_TO_SRC"\\Asset\\sword.png", 0, 0);
+    auto objTexture = renderer.loadTexture(renderer.getPathToSrc().string() + "\\Asset\\sword.png", 0, 0);
 
     while (renderer.gameLoopIsValid()) {
         auto events = renderer.pollEvents();
@@ -327,16 +326,16 @@ auto Game::RunGame(Renderer& renderer) -> int {
     player.centerPlayerSprite(renderer);
 
     Texture backgroundTextures[] = {
-            renderer.loadTexture(PATH_TO_SRC"\\Asset\\BG.png"),
-            renderer.loadTexture(PATH_TO_SRC"\\Asset\\FG.png")
+            renderer.loadTexture(renderer.getPathToSrc().string() + "\\Asset\\BG.png"),
+            renderer.loadTexture(renderer.getPathToSrc().string() + "\\Asset\\FG.png")
     };
 
 
     // Load World Sprite Sheet
     Texture tileTextures[] = {
-            renderer.loadTexture(PATH_TO_SRC"\\Asset\\Tileset64.png", 0, 0, 64, 64),
-            renderer.loadTexture(PATH_TO_SRC"\\Asset\\Tileset64.png", 64, 0, 64, 64),
-            renderer.loadTexture(PATH_TO_SRC"\\Asset\\Tileset64.png", 128, 0, 64, 64),
+            renderer.loadTexture(renderer.getPathToSrc().string() + "\\Asset\\Tileset64.png", 0, 0, 64, 64),
+            renderer.loadTexture(renderer.getPathToSrc().string() + "\\Asset\\Tileset64.png", 64, 0, 64, 64),
+            renderer.loadTexture(renderer.getPathToSrc().string() + "\\Asset\\Tileset64.png", 128, 0, 64, 64),
     };
 
 
@@ -389,6 +388,8 @@ auto Game::RunGame(Renderer& renderer) -> int {
    CollapseWorldTiles();
 */
 
+    LoadItemRegistryFromJson(renderer);
+
     size_t hotbarIndex = 0, inventoryIndex = 0;
     size_t hotbarSize = 10, inventorySize = 10 * 5;
     Timer inventoryOpenTimer{};
@@ -397,11 +398,13 @@ auto Game::RunGame(Renderer& renderer) -> int {
 
     Inventory playerInventory(renderer, 10, 5);
     playerInventory.moveCursor(0,0);
-    playerInventory.setSlot(1,0,ItemSpawnList::Spawn(ItemSpawnList::ItemID::TestTome, renderer));
+    playerInventory.setSlot(1,0, ItemSpawnList::Spawn(ItemSpawnList::ItemID::TestTome, renderer));
     (*playerInventory.getSlot(1).stackSize) = 10;
-    playerInventory.setSlot(2,0,ItemSpawnList::Spawn(ItemSpawnList::ItemID::TestSword, renderer));
+    playerInventory.setSlot(2,0, ItemSpawnList::Spawn(ItemSpawnList::ItemID::TestSword, renderer));
     (*playerInventory.getSlot(2).stackSize) = 10;
-    playerInventory.setSlot(3,0,ItemSpawnList::Spawn(ItemSpawnList::ItemID::TestPickaxe, renderer));
+    playerInventory.setSlot(3,0, ItemSpawnList::Spawn(ItemSpawnList::ItemID::TestPickaxe, renderer));
+    playerInventory.setSlot(4,0, ItemSpawnList::Spawn(ItemSpawnList::ItemID::StoneBlock, renderer));
+
     //playerInventory.setSlot(3,0,ItemSpawnList::Spawn(ItemSpawnList::ItemID::GrassBlock, renderer));
     //playerInventory.setSlot(4,0,ItemSpawnList::Spawn(ItemSpawnList::ItemID::DirtBlock, renderer));
     //playerInventory.setSlot(5,0,ItemSpawnList::Spawn(ItemSpawnList::ItemID::StoneBlock, renderer));
@@ -421,6 +424,87 @@ auto Game::RunGame(Renderer& renderer) -> int {
         // Get Inputs
         Event event = renderer.pollEvents();
 
+        if (event.keyState()) {
+            auto scancode = event.getKeyScancodes();
+            if (scancode >= SDL_SCANCODE_1 && scancode <= SDL_SCANCODE_0) {
+                auto numberKey = (scancode - SDL_SCANCODE_1);
+                hotbarIndex = numberKey;
+                playerInventory.moveCursor(hotbarIndex, 0);
+            }
+        }
+
+
+        if (inventoryCursorTimer.isComplete(100)) {
+            if (event.keyState()[SDL_SCANCODE_RIGHT]) {
+                if (!inventoryIsOpen) {
+                    if (hotbarIndex < hotbarSize - 1) {
+                        hotbarIndex++;
+                        playerInventory.moveCursor(hotbarIndex, 0);
+                        player.getController().validateCombatStance((*playerInventory.getSlot(hotbarIndex).item));
+                    }
+                } else {
+                    if (inventoryIndex < inventorySize - 1) {
+                        if (inventoryIndex < hotbarSize - 1) hotbarIndex++;
+                        inventoryIndex++;
+                        playerInventory.moveCursor(inventoryIndex % 10, inventoryIndex / 10);
+                    }
+                }
+            }
+            if (event.keyState()[SDL_SCANCODE_LEFT]) {
+                if (!inventoryIsOpen) {
+                    if (hotbarIndex >= 1) {
+                        hotbarIndex--;
+                        playerInventory.moveCursor(hotbarIndex, 0);
+                        player.getController().validateCombatStance((*playerInventory.getSlot(hotbarIndex).item));
+                    }
+                } else {
+                    if (inventoryIndex >= 1) {
+                        if (inventoryIndex < hotbarSize - 1) hotbarIndex--;
+                        inventoryIndex--;
+                        playerInventory.moveCursor(inventoryIndex % 10, inventoryIndex / 10);
+                    }
+                }
+            }
+            if (event.keyState()[SDL_SCANCODE_UP]) {
+                if (inventoryIsOpen && inventoryIndex >= 10) {
+                    inventoryIndex -= 10;
+                    playerInventory.moveCursor(inventoryIndex % 10, inventoryIndex / 10);
+                } else {
+
+                }
+            }
+            if (event.keyState()[SDL_SCANCODE_DOWN]) {
+                if (inventoryIsOpen && inventoryIndex < inventorySize - 11) {
+                    inventoryIndex += 10;
+                    playerInventory.moveCursor(inventoryIndex % 10, inventoryIndex / 10);
+                } else {
+
+                }
+            }
+
+            if (event.keyState()[SDL_SCANCODE_V]) {
+                printf("Holding Item: %i\n", SelectedItem::isHoldingItem);
+                if (!SelectedItem::isHoldingItem) {
+                    SelectedItem::SelectItem((*playerInventory.getSlot(hotbarIndex).item), renderer);
+                    printf("Picking Up Item\n");
+                } else {
+                    SelectedItem::DropSelectedItem((*playerInventory.getSlot(hotbarIndex).item), renderer);
+                    printf("Dropping Item\n");
+                }
+            }
+            inventoryCursorTimer.reset();
+        }
+
+
+        if (event.keyState()[SDL_SCANCODE_E] && inventoryOpenTimer.isCompleteReset(100)) {
+            if (!inventoryIsOpen) {
+                inventoryIndex = hotbarIndex;
+                playerInventory.moveCursor(inventoryIndex%10, inventoryIndex/10);
+            }
+            inventoryIsOpen = !inventoryIsOpen;
+        }
+
+
         if (renderer.updateGameLoop()) {
 
 
@@ -432,76 +516,6 @@ auto Game::RunGame(Renderer& renderer) -> int {
             }
 #endif
 
-
-            if (inventoryCursorTimer.isComplete(100)) {
-                if (event.keyState()[SDL_SCANCODE_RIGHT]) {
-                    if (!inventoryIsOpen) {
-                        if (hotbarIndex < hotbarSize - 1) {
-                            hotbarIndex++;
-                            playerInventory.moveCursor(hotbarIndex, 0);
-                            player.getController().validateCombatStance((*playerInventory.getSlot(hotbarIndex).item));
-                        }
-                    } else {
-                        if (inventoryIndex < inventorySize - 1) {
-                            if (inventoryIndex < hotbarSize - 1) hotbarIndex++;
-                            inventoryIndex++;
-                            playerInventory.moveCursor(inventoryIndex % 10, inventoryIndex / 10);
-                        }
-                    }
-                }
-                if (event.keyState()[SDL_SCANCODE_LEFT]) {
-                    if (!inventoryIsOpen) {
-                        if (hotbarIndex >= 1) {
-                            hotbarIndex--;
-                            playerInventory.moveCursor(hotbarIndex, 0);
-                            player.getController().validateCombatStance((*playerInventory.getSlot(hotbarIndex).item));
-                        }
-                    } else {
-                        if (inventoryIndex >= 1) {
-                            if (inventoryIndex < hotbarSize - 1) hotbarIndex--;
-                            inventoryIndex--;
-                            playerInventory.moveCursor(inventoryIndex % 10, inventoryIndex / 10);
-                        }
-                    }
-                }
-                if (event.keyState()[SDL_SCANCODE_UP]) {
-                    if (inventoryIsOpen && inventoryIndex >= 10) {
-                        inventoryIndex -= 10;
-                        playerInventory.moveCursor(inventoryIndex % 10, inventoryIndex / 10);
-                    } else {
-
-                    }
-                }
-                if (event.keyState()[SDL_SCANCODE_DOWN]) {
-                    if (inventoryIsOpen && inventoryIndex < inventorySize - 11) {
-                        inventoryIndex += 10;
-                        playerInventory.moveCursor(inventoryIndex % 10, inventoryIndex / 10);
-                    } else {
-
-                    }
-                }
-
-                if (event.keyState()[SDL_SCANCODE_V]) {
-                    printf("Holding Item: %i\n", SelectedItem::isHoldingItem);
-                    if (!SelectedItem::isHoldingItem) {
-                        SelectedItem::SelectItem((*playerInventory.getSlot(hotbarIndex).item), renderer);
-                        printf("Picking Up Item\n");
-                    } else {
-                        SelectedItem::DropSelectedItem((*playerInventory.getSlot(hotbarIndex).item), renderer);
-                        printf("Dropping Item\n");
-                    }
-                }
-                inventoryCursorTimer.reset();
-            }
-
-
-            if (event.keyState()[SDL_SCANCODE_E] && inventoryOpenTimer.isCompleteReset(100)) {
-                if (!inventoryIsOpen) {
-                    inventoryIndex = hotbarIndex;
-                    playerInventory.moveCursor(inventoryIndex%10, inventoryIndex/10);
-                }
-                inventoryIsOpen = !inventoryIsOpen;
-            }
             if (event.keyState()[SDL_SCANCODE_R] && inventoryIsOpen) {
                 playerInventory.debugPrint();
             }
@@ -519,7 +533,8 @@ auto Game::RunGame(Renderer& renderer) -> int {
                     {player.pos().x-16, player.pos().y-(int)player.getMaxJumpHeight(), player.pos().w+32, player.pos().h+100},
             };
             std::vector<Rect> possiblePlayerWorldCollisions = world.collisionCheck(collisions);
-            player.update(event, scene, possiblePlayerWorldCollisions);
+            //player.update(event, scene, possiblePlayerWorldCollisions);
+            player.update(event, scene, world);
 /*
             if (parentChunk->baseLoaded)
                 possiblePlayerWorldCollisions.emplace_back(parentChunk->baseChunk.getRect(scene.getSceneOffset().add(0,32)));
@@ -568,13 +583,14 @@ auto Game::RunGame(Renderer& renderer) -> int {
             if (event.mouseDownL()) {
                 if ((*playerInventory.getSlot(hotbarIndex).item).type() == ItemSpawnList::ItemType::Block) {
                     auto block = world.getBlockAtCursor();
-                    if (block != nullptr) {
+                    if (block != nullptr && block->second == BlockType::None) {
                         (*block).second = (BlockType)(*playerInventory.getSlot(hotbarIndex).item).id();
                         (*block).first.setTexture((*playerInventory.getSlot(hotbarIndex).item).getTexture());
                     }
                 }
                 else if ((*playerInventory.getSlot(hotbarIndex).item).type() == ItemSpawnList::ItemType::Tool) {
-                    if ((*playerInventory.getSlot(hotbarIndex).item).id() == ItemSpawnList::ItemID::TestPickaxe) {
+                    if ((*playerInventory.getSlot(hotbarIndex).item).id() == ItemSpawnList::ItemID::TestPickaxe &&
+                        player.getController().playerInCombatStance()) {
                         auto playerTool = playerInventory.getSlot(hotbarIndex).item;
                         auto block = world.getBlockAtCursor();
                         if (block != nullptr && block->second != BlockType::None) {

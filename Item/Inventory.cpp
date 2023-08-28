@@ -9,7 +9,7 @@ static constexpr int32_t s_SlotSizeX = 32, s_SlotSizeY = 32;
 
 Inventory::Inventory(Renderer& renderer, size_t sizeX, size_t sizeY) : _slotsX(sizeX), _slotsY(sizeY), _items(_slotsX * _slotsY), _itemStackSize(_slotsX * _slotsY), _cursorPos({0,0,0,0}),  _renderOffset(0,0) {
     if (!s_InventorySlotTexture.has_value())
-        s_InventorySlotTexture = renderer.loadTexture(PATH_TO_SRC"\\Asset\\Itemholder.png");
+        s_InventorySlotTexture = renderer.loadTexture(renderer.getPathToSrc().string() + "\\Asset\\Itemholder.png");
 }
 
 

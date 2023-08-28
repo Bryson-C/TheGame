@@ -5,12 +5,10 @@
 #ifndef SDL_RENDERER_HPP
 #define SDL_RENDERER_HPP
 
-#define PATH_TO_SRC "X:\\SDL"
-
-
 #include <iostream>
 #include <vector>
 #include <optional>
+#include <filesystem>
 
 #include "SDL.h"
 #include "SDL_image.h"
@@ -26,7 +24,6 @@
 #include "Scene/Scene.hpp"
 
 
-
 class Renderer {
 private:
     SDL_Window* window;
@@ -38,6 +35,7 @@ private:
     // milliseconds / desired framerate
     uint32_t updateTime = 1000/60;
 
+    std::filesystem::path pathToSrc;
 
     friend int main();
 public:
@@ -47,6 +45,8 @@ public:
     explicit operator SDL_Renderer*() { return renderer; }
 
     Event pollEvents();
+
+    std::filesystem::path getPathToSrc() const { return pathToSrc; }
 
     inline bool updateGameLoop() {
         if (clock() - time >= updateTime) {
@@ -74,6 +74,7 @@ public:
     void present();
 
     Texture loadTexture(const char* path, int textureX = 0, int textureY = 0, int textureW = -1, int textureH = -1);
+    Texture loadTexture(std::string path, int textureX = 0, int textureY = 0, int textureW = -1, int textureH = -1);
     void unloadTexture(Texture& texture);
 
     // Draw Functions
@@ -154,8 +155,8 @@ private:
 public:
     //inline FontRenderer() = default;
     inline FontRenderer(Renderer& renderer) {
-        _FontTexture = renderer.loadTexture(PATH_TO_SRC"\\Asset\\Font.png", 0, 0, 16 * 10, 16 * 4);
-        _BBFont = renderer.loadTexture(PATH_TO_SRC"\\Asset\\BBFont.png", 0, 0, 32 * 26, 32 * 2);
+        _FontTexture = renderer.loadTexture(renderer.getPathToSrc().string() + "\\Asset\\Font.png", 0, 0, 16 * 10, 16 * 4);
+        _BBFont = renderer.loadTexture(renderer.getPathToSrc().string() + "\\Asset\\BBFont.png", 0, 0, 32 * 26, 32 * 2);
     }
 
     struct FontProperties {

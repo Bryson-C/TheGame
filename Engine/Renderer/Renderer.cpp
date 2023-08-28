@@ -19,6 +19,7 @@ Renderer::Renderer(uint32_t width, uint32_t height) : gameLoopValid(true), time(
     renderer = SDL_CreateRenderer(window,
                                   s_RendererGlobalID++,
                                   SDL_RENDERER_ACCELERATED);
+    pathToSrc = std::filesystem::current_path();
 }
 Renderer::~Renderer() {
     IMG_Quit();
@@ -102,6 +103,11 @@ Texture Renderer::loadTexture(const char* path, int textureX, int textureY, int 
 
     return texture;
 }
+
+Texture Renderer::loadTexture(std::string path, int textureX, int textureY, int textureW, int textureH) {
+    return loadTexture(path.c_str(), textureX, textureY, textureW, textureH);
+}
+
 void Renderer::unloadTexture(Texture& texture) {
     auto tex = (*Texture::getGlobalTextures())[texture.gTextureIndex];
     tex.references--;
@@ -227,10 +233,11 @@ struct PercentageBarProperties {
 
 void drawPercentageBar(Renderer& renderer, SDL_Rect rect, int current, int max) {
     auto col = renderer.getColor();
-    SDL_Rect border = {rect.x, rect.y - (rect.h * 2), rect.w, rect.h};
+    SDL_Rect inside = {rect.x, rect.y - 20, (current > 0) ? ((current * rect.w) / max) : 0, 10};
+    SDL_Rect border = inside;
+    border.w = rect.w;
     renderer.setColor(40,40,40);
     renderer.drawRect(border);
-    SDL_Rect inside = {rect.x, rect.y - 20, (current > 0) ? ((current * rect.w) / max) : 0, 10};
     renderer.setColor(255,0,0);
     renderer.drawRect(inside);
     renderer.setColor(col);

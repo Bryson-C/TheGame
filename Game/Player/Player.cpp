@@ -4,7 +4,7 @@
 
 #include "Player.hpp"
 
-#define PATH_TO_SRC "X:\\SDL"
+//#define pathToSrc +  "X:\\SDL"
 
 Player::Player(Renderer& renderer, int spawnX, int spawnY) :
         _PlayerHead(spawnX,spawnY, 32, 32),
@@ -17,141 +17,158 @@ Player::Player(Renderer& renderer, int spawnX, int spawnY) :
     _PlayerLegs.col = {0,255,0};
     resetPlayerHitbox();
 
+    const std::string pathToSrc = renderer.getPathToSrc().string();
+
+    // TODO: Maybe Use This Function For Wind Effects
+    //SDL_RenderGeometryRaw();
+
     std::vector<std::vector<Texture>> playerAnimations {
             {
                 // idle
-                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48*0, 0, 48, 48),
-                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48*1, 0, 48, 48),
-                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48*2, 0, 48, 48),
-                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48*3, 0, 48, 48),
-                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48*4, 0, 48, 48),
-                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48*5, 0, 48, 48),
-                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48*6, 0, 48, 48),
-                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48*7, 0, 48, 48),
-                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48*8, 0, 48, 48),
-                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48*9, 0, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48*0, 0, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48*1, 0, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48*2, 0, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48*3, 0, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48*4, 0, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48*5, 0, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48*6, 0, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48*7, 0, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48*8, 0, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48*9, 0, 48, 48),
             },
             {
                 // walk
-                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 0, 48 * 1, 48, 48),
-                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 1, 48 * 1, 48, 48),
-                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 2, 48 * 1, 48, 48),
-                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 3, 48 * 1, 48, 48),
-                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 4, 48 * 1, 48, 48),
-                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 5, 48 * 1, 48, 48),
-                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 6, 48 * 1, 48, 48),
-                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 7, 48 * 1, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48 * 0, 48 * 1, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48 * 1, 48 * 1, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48 * 2, 48 * 1, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48 * 3, 48 * 1, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48 * 4, 48 * 1, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48 * 5, 48 * 1, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48 * 6, 48 * 1, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48 * 7, 48 * 1, 48, 48),
             },
             {
                 // run
-                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 0, 48 * 2, 48, 48),
-                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 1, 48 * 2, 48, 48),
-                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 2, 48 * 2, 48, 48),
-                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 3, 48 * 2, 48, 48),
-                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 4, 48 * 2, 48, 48),
-                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 5, 48 * 2, 48, 48),
-                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 6, 48 * 2, 48, 48),
-                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 7, 48 * 2, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48 * 0, 48 * 2, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48 * 1, 48 * 2, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48 * 2, 48 * 2, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48 * 3, 48 * 2, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48 * 4, 48 * 2, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48 * 5, 48 * 2, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48 * 6, 48 * 2, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48 * 7, 48 * 2, 48, 48),
             },
             {
                 // crouch idle
-                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 0, 48 * 3, 48, 48),
-                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 1, 48 * 3, 48, 48),
-                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 2, 48 * 3, 48, 48),
-                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 3, 48 * 3, 48, 48),
-                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 4, 48 * 3, 48, 48),
-                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 5, 48 * 3, 48, 48),
-                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 6, 48 * 3, 48, 48),
-                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 7, 48 * 3, 48, 48),
-                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 8, 48 * 3, 48, 48),
-                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 9, 48 * 3, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48 * 0, 48 * 3, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48 * 1, 48 * 3, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48 * 2, 48 * 3, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48 * 3, 48 * 3, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48 * 4, 48 * 3, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48 * 5, 48 * 3, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48 * 6, 48 * 3, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48 * 7, 48 * 3, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48 * 8, 48 * 3, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48 * 9, 48 * 3, 48, 48),
             },
             {
                 // crouch walk
-                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 0, 48 * 4, 48, 48),
-                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 1, 48 * 4, 48, 48),
-                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 2, 48 * 4, 48, 48),
-                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 3, 48 * 4, 48, 48),
-                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 4, 48 * 4, 48, 48),
-                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 5, 48 * 4, 48, 48),
-                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 6, 48 * 4, 48, 48),
-                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 7, 48 * 4, 48, 48),
-                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 8, 48 * 4, 48, 48),
-                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 9, 48 * 4, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48 * 0, 48 * 4, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48 * 1, 48 * 4, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48 * 2, 48 * 4, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48 * 3, 48 * 4, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48 * 4, 48 * 4, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48 * 5, 48 * 4, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48 * 6, 48 * 4, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48 * 7, 48 * 4, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48 * 8, 48 * 4, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48 * 9, 48 * 4, 48, 48),
             },
             {
                 // jump
-                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 0, 48 * 5, 48, 48),
-                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 1, 48 * 5, 48, 48),
-                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 2, 48 * 5, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48 * 0, 48 * 5, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48 * 1, 48 * 5, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48 * 2, 48 * 5, 48, 48),
 
             },
             {
                 // land
-                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 0, 48 * 6, 48, 48),
-                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 1, 48 * 6, 48, 48),
-                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 2, 48 * 6, 48, 48),
-                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 3, 48 * 6, 48, 48),
-                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 4, 48 * 6, 48, 48),
-                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 5, 48 * 6, 48, 48),
-                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 6, 48 * 6, 48, 48),
-                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 7, 48 * 6, 48, 48),
-                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 8, 48 * 6, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48 * 0, 48 * 6, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48 * 1, 48 * 6, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48 * 2, 48 * 6, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48 * 3, 48 * 6, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48 * 4, 48 * 6, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48 * 5, 48 * 6, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48 * 6, 48 * 6, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48 * 7, 48 * 6, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48 * 8, 48 * 6, 48, 48),
             },
             {
                 // air flip
-                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 0, 48 * 7, 48, 48),
-                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 1, 48 * 7, 48, 48),
-                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 2, 48 * 7, 48, 48),
-                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 3, 48 * 7, 48, 48),
-                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 4, 48 * 7, 48, 48),
-                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 5, 48 * 7, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48 * 0, 48 * 7, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48 * 1, 48 * 7, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48 * 2, 48 * 7, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48 * 3, 48 * 7, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48 * 4, 48 * 7, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48 * 5, 48 * 7, 48, 48),
             },
             {
                 // roll
-                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 0, 48 * 8, 48, 48),
-                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 1, 48 * 8, 48, 48),
-                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 2, 48 * 8, 48, 48),
-                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 3, 48 * 8, 48, 48),
-                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 4, 48 * 8, 48, 48),
-                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 5, 48 * 8, 48, 48),
-                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 6, 48 * 8, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48 * 0, 48 * 8, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48 * 1, 48 * 8, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48 * 2, 48 * 8, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48 * 3, 48 * 8, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48 * 4, 48 * 8, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48 * 5, 48 * 8, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48 * 6, 48 * 8, 48, 48),
             },
             {
                 // weapon swing
-                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 0, 48 * 9, 48, 48),
-                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 1, 48 * 9, 48, 48),
-                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 2, 48 * 9, 48, 48),
-                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 3, 48 * 9, 48, 48),
-                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 4, 48 * 9, 48, 48),
-                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 5, 48 * 9, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48 * 0, 48 * 9, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48 * 1, 48 * 9, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48 * 2, 48 * 9, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48 * 3, 48 * 9, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48 * 4, 48 * 9, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48 * 5, 48 * 9, 48, 48),
             },
             {
                 // die
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48 * 0, 48 * 10, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48 * 1, 48 * 10, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48 * 2, 48 * 10, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48 * 3, 48 * 10, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48 * 4, 48 * 10, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48 * 5, 48 * 10, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48 * 6, 48 * 10, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48 * 7, 48 * 10, 48, 48),
             },
             {
                 // hit
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48 * 0, 48 * 11, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48 * 1, 48 * 11, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48 * 2, 48 * 11, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48 * 3, 48 * 11, 48, 48),
             },
             {
                 // punch
-                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 0, 48 * 12, 48, 48),
-                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 1, 48 * 12, 48, 48),
-                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 2, 48 * 12, 48, 48),
-                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 3, 48 * 12, 48, 48),
-                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 4, 48 * 12, 48, 48),
-                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 5, 48 * 12, 48, 48),
-                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 6, 48 * 12, 48, 48),
-                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 7, 48 * 12, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48 * 0, 48 * 12, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48 * 1, 48 * 12, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48 * 2, 48 * 12, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48 * 3, 48 * 12, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48 * 4, 48 * 12, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48 * 5, 48 * 12, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48 * 6, 48 * 12, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48 * 7, 48 * 12, 48, 48),
             },
             {
                 // weapon stab
-                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 0, 48 * 13, 48, 48),
-                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 1, 48 * 13, 48, 48),
-                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 2, 48 * 13, 48, 48),
-                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 3, 48 * 13, 48, 48),
-                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 4, 48 * 13, 48, 48),
-                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 5, 48 * 13, 48, 48),
-                    renderer.loadTexture(PATH_TO_SRC"\\Asset\\SpriteSheets\\all.png", 48 * 6, 48 * 13, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48 * 0, 48 * 13, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48 * 1, 48 * 13, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48 * 2, 48 * 13, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48 * 3, 48 * 13, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48 * 4, 48 * 13, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48 * 5, 48 * 13, 48, 48),
+                    renderer.loadTexture(pathToSrc + "\\Asset\\SpriteSheets\\all.png", 48 * 6, 48 * 13, 48, 48),
             }
     };
 
@@ -178,7 +195,7 @@ void Player::centerPlayerSprite(Renderer& renderer) {
 }
 
 // TODO: Update Player Collision Code
-void Player::update(Event& event, Scene& scene, std::vector<Rect>& possibleCollisions) {
+void Player::update(Event& event, Scene& scene, World& world) {
 
     bool playerCanFastFall = true;
     _PlayerJumpStatus[0].canJump = false;
@@ -200,18 +217,59 @@ void Player::update(Event& event, Scene& scene, std::vector<Rect>& possibleColli
     wallCol.h = (_PlayerBody.pos.h * 3) - 16;
     wallCol.y = _PlayerHead.pos.y + 8;
 
-    SDL_Rect groundCol = _PlayerLegs.pos, resultCol;
-    SDL_Rect jumpRayCast = {pos().x, pos().y - maxJumpHeight, pos().w, maxJumpHeight};
     SDL_Rect jumpCastResult;
-    /*
-    // TODO: Find Way To Make The Jump Raycast Better
-    jumpRayCast.y -= maxJumpHeight - (maxJumpHeight - pos().h);
-    jumpRayCast.w -= 6;
-    jumpRayCast.x += 3;*/
-
     const int gravityLimit = 4;
-    groundCol.h += _MomentumY.currentMomentum + gravityLimit;
+    auto playerPos = pos();
+    SDL_Rect jumpRayCast = {playerPos.x + 2, playerPos.y - maxJumpHeight, playerPos.w - 4, maxJumpHeight};
+    const uint32_t blockRange = 32;
+    // Checking All Collisions Besides Upwards And Jumping Collisions
+    for (const auto& block : world.getBlocks()) {
+        SDL_Rect collisionOverlaps;
+        if (SDL_IntersectRect(&playerPos, &block.first.pos, &collisionOverlaps) && block.second != BlockType::None) {
+            CollisionCheckers.push_back(block.first.pos);
+            // Ground collisions
+            if (playerPos.y + playerPos.h + gravityLimit > block.first.pos.y && getCenterOfRect(block.first.pos).y > getCenterOfRect(playerPos).y) {
+                playerCanMove[2] = false;
+                _PlayerJumpStatus[0].canJump = true;
+                _MomentumY = 0;
+                if (collisionOverlaps.h > 1)
+                    _MomentumY.pushDontExceed(1, 1);
+            }
 
+            if (collisionOverlaps.h > 1) {
+                // Right Collision
+                if (playerPos.x + playerPos.w + _MomentumX.currentMomentum < block.first.pos.x + (block.first.pos.w/2)) {
+                    playerCanMove[1] = false;
+                    _MomentumX = 0;
+                    if (collisionOverlaps.w > 1)
+                        _MomentumX.pushDontExceed(1, 1);
+                }
+                // Left Collision
+                if (playerPos.x - _MomentumX.currentMomentum > block.first.pos.x - (block.first.pos.w/2)) {
+                    playerCanMove[3] = false;
+                    _MomentumX = 0;
+                    if (collisionOverlaps.w > 1)
+                        _MomentumX.pushDontExceed(-1, 1);
+                }
+            }
+        }
+    }
+
+    // Checking Jumping Collisions
+    for (const auto& block : world.getBlocks()) {
+        if (block.second != BlockType::None && rectsCollide(jumpRayCast, block.first.pos)) {
+            if (playerPos.y + gravityLimit > block.first.pos.y + (block.first.pos.h - block.first.pos.h/2)) {
+                maxJumpHeight = playerPos.y - (block.first.pos.y + block.first.pos.h);
+                jumpRayCast = {playerPos.x, playerPos.y - maxJumpHeight, playerPos.w, maxJumpHeight};
+                printf("JumpHeight: %i\n", maxJumpHeight);
+                playerCanMove[0] = false;
+            }
+        }
+    }
+
+    CollisionCheckers.push_back(jumpRayCast);
+
+/*
     for (const auto& col : possibleCollisions) {
         // Horizontal Collisions
         if (SDL_IntersectRect(&wallCol, &col.pos, &wallResult)) {
@@ -254,16 +312,16 @@ void Player::update(Event& event, Scene& scene, std::vector<Rect>& possibleColli
         //CollisionCheckers.push_back(col.pos);
 #endif
     }
+*/
 
     // Apply Gravity
     // Any Gravity Higher Than 5 Makes The Horizontal Collider Collide With The Ground
-    if (playerCanMove[2]) _MomentumY.pushDontExceed(-2, 4);
+    if (playerCanMove[2]) _MomentumY.pushDontExceed(-2, gravityLimit);
 
 
     auto shiftHeld = event.keyState()[SDL_SCANCODE_LSHIFT];
     auto aHeld = event.keyState()[SDL_SCANCODE_A];
     auto dHeld = event.keyState()[SDL_SCANCODE_D];
-    int32_t momentum = 0;
     int32_t timeTillNextFrame = 64;
 
     if (aHeld && playerCanMove[3] && !_PlayerRollStatus.isActive) {
@@ -283,6 +341,8 @@ void Player::update(Event& event, Scene& scene, std::vector<Rect>& possibleColli
         _PlayerRollStatus.stage = 0;
     }
     if (event.keyState()[SDL_SCANCODE_SPACE] && playerCanMove[0] && !_PlayerRollStatus.isActive) {
+        _PlayerWeaponSwingStatus.isActive = false;
+        _PlayerWeaponSwingStatus.stage = 0;
         if (_PlayerJumpStatus[0].canJump) {
             _PlayerJumpStatus[0].reset();
             _PlayerJumpStatus[1].canJump = true;
@@ -333,6 +393,11 @@ void Player::update(Event& event, Scene& scene, std::vector<Rect>& possibleColli
     }
     if (_PlayerWeaponStabStatus.isActive) {
         timeTillNextFrame = 64;
+        if (aHeld || dHeld) {
+            uint32_t stage = (shiftHeld) ? 3 : 2;
+            _PlayerWeaponSwingStatus.stage = stage;
+            _AnimationController.setFrame(stage);
+        }
         AnimatePlayerWeaponStabState();
         printf("Stab\n");
         if (_PlayerWeaponStabStatus.stage >= 6) {
@@ -353,7 +418,7 @@ void Player::update(Event& event, Scene& scene, std::vector<Rect>& possibleColli
         AnimatePlayerState(PlayerControllerState::Roll, timeTillNextFrame, &_PlayerRollStatus);
         if (_PlayerRollStatus.stage < 6) {
             _MomentumX.pushDontExceed((_PlayerFacingRight) ? -11 : 11, 11);
-        } else if (_PlayerRollStatus.stage >= 6) {
+        } else {
             _PlayerRollStatus.isActive = false;
             _PlayerRollStatus.stage = 0;
         }
@@ -388,48 +453,48 @@ void Player::update(Event& event, Scene& scene, std::vector<Rect>& possibleColli
         }
     }
 
-            scene.moveWorld(_MomentumX.currentMomentum, _MomentumY.currentMomentum);
-            _MomentumX.applyForce();
-            _MomentumY.applyForce();
+    scene.moveWorld(_MomentumX.currentMomentum, _MomentumY.currentMomentum);
+    _MomentumX.applyForce();
+    _MomentumY.applyForce();
 
 
-            //_playerHeldItemInteropNeedsUpdate = _UpdateAnimationFrameTimer.getTime() > ((timeTillNextFrame * _playerHeldItemInteropFrame) / _playerHeldItemInteropSteps);
-            _playerHeldItemInteropFrame = _UpdateAnimationFrameTimer.getTime() / (timeTillNextFrame / _playerHeldItemInteropSteps);
-            if (_playerHeldItemInteropFrame > _playerHeldItemInteropSteps) _playerHeldItemInteropFrame = 0;
-        }
+    //_playerHeldItemInteropNeedsUpdate = _UpdateAnimationFrameTimer.getTime() > ((timeTillNextFrame * _playerHeldItemInteropFrame) / _playerHeldItemInteropSteps);
+    _playerHeldItemInteropFrame = _UpdateAnimationFrameTimer.getTime() / (timeTillNextFrame / _playerHeldItemInteropSteps);
+    if (_playerHeldItemInteropFrame > _playerHeldItemInteropSteps) _playerHeldItemInteropFrame = 0;
+}
 
 
-        void Player::draw(Renderer &renderer) {
-            // Old Way Of Doing It, I Still Need To Split The Test Animations So I Can Have More Control Over The Animations
-            //renderer.drawRect(_PlayerHead);
-            //renderer.drawRect(_PlayerBody);
-            //renderer.drawRect(_PlayerLegs);
-            Renderer::TextureDrawProperties props;
-            props.flip = (_PlayerFacingRight) ? SDL_FLIP_NONE : SDL_FLIP_HORIZONTAL;
-            props.rotationOrigin = {0,0};
-            props.rotation = 0.0f;
-            SDL_Rect position = {
-                    pos().x - 48,
-                    pos().y - 48,
-                    _AnimationController.getFrameTexture().textureW * 3,
-                    _AnimationController.getFrameTexture().textureH * 3
-            };
-            _AnimationController.drawFrame(renderer, position, props);
+void Player::draw(Renderer &renderer) {
+    // Old Way Of Doing It, I Still Need To Split The Test Animations So I Can Have More Control Over The Animations
+    //renderer.drawRect(_PlayerHead);
+    //renderer.drawRect(_PlayerBody);
+    //renderer.drawRect(_PlayerLegs);
+    Renderer::TextureDrawProperties props;
+    props.flip = (_PlayerFacingRight) ? SDL_FLIP_NONE : SDL_FLIP_HORIZONTAL;
+    props.rotationOrigin = {0,0};
+    props.rotation = 0.0f;
+    SDL_Rect position = {
+            pos().x - 48,
+            pos().y - 48,
+            _AnimationController.getFrameTexture().textureW * 3,
+            _AnimationController.getFrameTexture().textureH * 3
+    };
+    _AnimationController.drawFrame(renderer, position, props);
 
-        #ifdef PLAYER_DEBUG
-            auto col = renderer.getColor();
-            renderer.setColor(255,0,0);
-            for (const auto& check : CollisionCheckers) {
-                renderer.drawRect(check, {{.filled = false}});
-            }
-            renderer.setColor(col);
-        #endif
+#ifdef PLAYER_DEBUG
+    auto col = renderer.getColor();
+    renderer.setColor(255,0,0);
+    for (const auto& check : CollisionCheckers) {
+        renderer.drawRect(check, {{.filled = false}});
+    }
+    renderer.setColor(col);
+#endif
 
-        }
+}
 
-        int32_t updateInterop(int32_t from, int32_t to, int32_t frame, int32_t steps) {
-            return  from + ((to - from) / steps) * frame;
-        }
+int32_t updateInterop(int32_t from, int32_t to, int32_t frame, int32_t steps) {
+    return  from + ((to - from) / steps) * frame;
+}
 
 void DrawPlayersHeldItem(Renderer& renderer, Player& player, Item& heldItem) {
         if (heldItem.type() != ItemSpawnList::ItemType::Tool &&
@@ -574,16 +639,33 @@ void DrawPlayersHeldItem(Renderer& renderer, Player& player, Item& heldItem) {
                         {12, -10, 95},
                 }; break;
             case Die:
-                gripPoints = {}; break;
+                gripPoints = {
+                        {-4, 15, 45},
+                        {-1, 19, 45},
+                        {2, 29, 45},
+                        {2, 29, 45},
+                        {2, 29, 45},
+                        {2, 29, 45},
+                        {2, 29, 45},
+                        {2, 29, 45},
+                }; break;
             case Hit:
-                gripPoints = {}; break;
+                gripPoints = {
+                        {2, -4, 0},
+                        {-16, -6, 25},
+                        {-17, -12, 35},
+                        {-13, -8, 45},
+                }; break;
             case Punch:
                 gripPoints = {
-                        {-8, 4, -50},
-                        {-7, 9, -55},
-                        {-4, 8, -55},
-                        {-4, 8, -55},
-                        {61, -17, 45},
+                        {-9, 2, -50},
+                        {-8, 9, -50},
+                        {-5, 7, -50},
+                        {-6, 6, -50},
+                        {60, -17, 40},
+                        {41, -4, 70},
+                        {33, -1, 60},
+                        {21, 0, 15},
                 }; break;
             case WeaponStab:
                 gripPoints = {

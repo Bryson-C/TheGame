@@ -38,6 +38,9 @@ public:
     [[nodiscard]] const bool mouseScrollDown() const;
     [[nodiscard]] const bool mouseScrollUp() const;
 
+    SDL_Scancode getKeyScancodes() const {
+        return event.key.keysym.scancode;
+    }
     std::string getKeyboardInput(std::string message) {
         if (event.key.type == SDL_KEYDOWN) {
             if (keyState()[SDL_SCANCODE_SPACE]) {
