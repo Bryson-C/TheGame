@@ -1,17 +1,74 @@
 {
     "BlankItem" : {
-        "name": "None",
-        "id": "None",
+        "name": "BlankItem",
+        "id": 0,
         "type": "None",
+        "itemPos": [0,0,64,64],
+        "desc": "",
+        "textureSrc": "\\Asset\\Tileset64.png",
+        "texturePos": [192,0,64,64]
+    },
+    "GrassBlock" : {
+        "name": "GrassBlock",
+        "id": 1,
+        "type": "Block",
         "itemPos": [0,0,64,64],
         "desc": "",
         "textureSrc": "\\Asset\\Tileset64.png",
         "texturePos": [0,0,64,64]
     },
-    "Item1" : {
-        "name" : "Hello World!",
-        "id": "TestingTool",
-        "type": "Tool"
+    "DirtBlock" : {
+        "name": "DirtBlock",
+        "id": 2,
+        "type": "Block",
+        "itemPos": [0,0,64,64],
+        "desc": "",
+        "textureSrc": "\\Asset\\Tileset64.png",
+        "texturePos": [64,0,64,64]
     },
-    "Item2" : {}
+    "StoneBlock" : {
+        "name": "StoneBlock",
+        "id": 3,
+        "type": "Block",
+        "itemPos": [0,0,64,64],
+        "desc": "",
+        "textureSrc": "\\Asset\\Tileset64.png",
+        "texturePos": [128,0,64,64]
+    },
+    "TestPickaxe" : {
+        "name": "TestPickaxe",
+        "id": 4,
+        "type": "Tool",
+        "itemPos": [0,0,64,64],
+        "desc": "",
+        "textureSrc": "\\Asset\\pickaxe.png",
+        "texturePos": [0,0,64,64]
+    },
+    "TestSword" : {
+        "name": "TestSword",
+        "id": 5,
+        "type": "Weapon",
+        "itemPos": [0,0,64,64],
+        "desc": "",
+        "textureSrc": "\\Asset\\sword.png",
+        "texturePos": [0,0,64,64]
+    },
+    "TestTome" : {
+        "name": "TestTome",
+        "id": 6,
+        "type": "MagicalItem",
+        "itemPos": [0,0,64,64],
+        "desc": "",
+        "textureSrc": "\\Asset\\Spell_Tome.png",
+        "texturePos": [0,0,64,64]
+    },
+    "ActualHuman" : {
+        "name": "ActualHuman",
+        "id": 7,
+        "type": "Tool",
+        "itemPos": [0,0,48,48],
+        "desc": "",
+        "textureSrc": "\\Asset\\SpriteSheets\\all.png",
+        "texturePos": [0,0,48,48]
+    }
 }
