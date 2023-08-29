@@ -87,7 +87,7 @@ public:
     ItemSlotAccessor operator[](size_t index);
     ItemSlotAccessor getFirstEmptySlot();
     ItemSlotAccessor getFirstSlotOfType(ItemSpawnList::ItemType type);
-    ItemSlotAccessor getFirstSlotOfID(ItemSpawnList::ItemID ID);
+    ItemSlotAccessor getFirstSlotOfID(size_t ID);
 
 
     void moveCursor(size_t x, size_t y);
@@ -98,7 +98,7 @@ public:
 
     inline void debugPrint() {
         for (int loop = 0; const auto& item : _items) {
-            if (item.id() == ItemSpawnList::ItemID::None) { loop++; continue; }
+            if (item.id() == (int)ItemSpawnList::ItemID::None) { loop++; continue; }
             printf(" %i|ID:%i,#:%i|", loop, item.id(), _itemStackSize[loop]);
             if (loop%_slotsX==0) printf("\n");
             loop++;

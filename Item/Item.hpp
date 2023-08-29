@@ -36,32 +36,39 @@ namespace ItemSpawnList {
     void Despawn(Item& item, Renderer& renderer);
 }
 
-
-class RuntimeEnum {
-    std::map<std::string, int> enumValue;
-public:
-    int getEnum(std::string str) { return enumValue[str]; }
-    int operator[](std::string key) { return enumValue[key]; }
-    void addEnum(std::string key) {
-        enumValue.insert({key, enumValue.size() - 1});
-    }
-};
-
-static RuntimeEnum s_ItemRegistry{};
 struct ItemRegistryData {
     std::string name;
     std::string desc;
-    std::string itemID;
-    std::string itemType;
+    size_t itemID;
+    ItemSpawnList::ItemType itemType;
+    static ItemSpawnList::ItemType parseStringToEnum(std::string typeString) {
+        if (typeString == "Block") { return ItemSpawnList::ItemType::Block; }
+        else if (typeString == "Weapon") { return ItemSpawnList::ItemType::Weapon; }
+        else if (typeString == "Tool") { return ItemSpawnList::ItemType::Tool; }
+        else if (typeString == "MagicalItem") { return ItemSpawnList::ItemType::MagicalItem; }
+        return ItemSpawnList::ItemType::None;
+    }
     v4<int> pos;
     std::string textureSrcPath;
     v4<int> texturePos;
 };
-static std::vector<ItemRegistryData> s_ItemRegistryData {};
 
-inline void AddItemToItemRegistry(std::string key, void* data = nullptr) {
-    s_ItemRegistry.addEnum(key);
-}
+class ItemRegistry {
+    std::map<std::string, ItemRegistryData> enumValue;
+public:
+    ItemRegistryData getEnum(std::string str) { return enumValue[str]; }
+    ItemRegistryData operator[](std::string key) { return enumValue[key]; }
+    void addEntry(std::string key, ItemRegistryData data) { enumValue.insert({key, data}); }
+    bool contains(std::string key) { return enumValue.contains(key); }
+    void debugPrint() {
+        for (const auto& i : enumValue) {
+            std::cout << i.first << " | " << i.second.itemID << "\n";
+        }
+    }
+};
+
+
+
 
 static std::string fileToString(const std::filesystem::path& path) {
     std::ifstream file(path);
@@ -73,6 +80,41 @@ static std::string fileToString(const std::filesystem::path& path) {
     return result;
 }
 
+
+
+namespace {
+    namespace JsonHandler {
+        enum class JsonHandlerError {
+            Success,
+            Failure,
+            FieldNotPresent,
+        };
+        template<typename Type>
+        struct JsonResult {
+            Type data;
+            JsonHandlerError err;
+            Type defaultOnError(Type _default) {
+                if (err != JsonHandlerError::Success) {
+                    return _default;
+                }
+                return data;
+            }
+        };
+
+        // Cannot Handle Arrays Quite Yet
+        template<typename Type>
+        JsonResult<Type> getField(std::string key, nlohmann::json jsonData) {
+            if (jsonData.contains(key)) {
+                return {jsonData[key], JsonHandlerError::Success};
+            }
+            return {Type(), JsonHandlerError::FieldNotPresent};
+        }
+
+    }
+}
+
+extern ItemRegistry s_ItemRegistry;
+
 static std::string ItemDataPath;
 inline void LoadItemRegistryFromJson() {
     const auto itemLoadPath = std::filesystem::current_path().string() + "\\ItemData\\Items.json";
@@ -82,52 +124,27 @@ inline void LoadItemRegistryFromJson() {
     std::cout << itemDataAsString << "\n";
 
     auto jsonData = nlohmann::json::parse(itemDataAsString);
-    printf("Json Data Size %zi\n", jsonData.size());
     size_t itemLoop = 0;
     for (const auto& data : jsonData) {
         ItemRegistryData itemData;
-        itemData.name = "BAD_ITEM_" + std::to_string(itemLoop);
-        itemData.desc = "BAD_DESC_" + std::to_string(itemLoop);
-        itemData.itemID = "None";
-        itemData.itemType = "None";
         itemData.pos = {0, 0, 64, 64};
-        itemData.textureSrcPath = "\\Asset\\Tileset64.png";
         itemData.texturePos = {64 * 3, 0, 64, 64};
 
-        if (data.contains("name")) {
-            itemData.name = data["name"].get<std::string>();
-        }
-        if (data.contains("id")) {
-            itemData.itemID = data["id"].get<std::string>();
-        }
-        if (data.contains("type")) {
-            itemData.itemType = data["id"].get<std::string>();
-        }
+        itemData.name = JsonHandler::getField<std::string>("name", data).defaultOnError("BAD_ITEM_" + std::to_string(itemLoop));
+        itemData.desc = JsonHandler::getField<std::string>("desc", data).defaultOnError("BAD_DESC_" + std::to_string(itemLoop));
+        itemData.itemID = JsonHandler::getField<int>("id", data).defaultOnError(0);
+        itemData.itemType = ItemRegistryData::parseStringToEnum(JsonHandler::getField<std::string>("type", data).defaultOnError("None"));
+        // JsonHandler::getFeild Cannot Handle Arrays Yet
         if (data.contains("itemPos")) {
-            itemData.pos = {
-                    data["itemPos"][0],
-                    data["itemPos"][1],
-                    data["itemPos"][2],
-                    data["itemPos"][3],
-             };
+            itemData.pos = { data["itemPos"][0], data["itemPos"][1], data["itemPos"][2], data["itemPos"][3] };
         }
-        if (data.contains("desc")) {
-            itemData.desc = data["desc"].get<std::string>();
-        }
-        if (data.contains("textureSrc")) {
-            itemData.desc = data["textureSrc"].get<std::string>();
-        }
+        itemData.textureSrcPath = JsonHandler::getField<std::string>("textureSrc", data).defaultOnError("\\Asset\\Tileset64.png");
+        // JsonHandler::getFeild Cannot Handle Arrays Yet
         if (data.contains("texturePos")) {
-            itemData.pos = {
-                    data["texturePos"][0],
-                    data["texturePos"][1],
-                    data["texturePos"][2],
-                    data["texturePos"][3],
-            };
+            itemData.pos = { data["texturePos"][0], data["texturePos"][1], data["texturePos"][2], data["texturePos"][3] };
         }
-        s_ItemRegistry.addEnum(itemData.name);
-        s_ItemRegistryData.push_back(itemData);
-        printf("Item \"%s\" Added As: %s \n", itemData.name.c_str(), itemData.itemID.c_str());
+        s_ItemRegistry.addEntry(itemData.name, itemData);
+        printf("Item \"%s\" Added As: %i \n", itemData.name.c_str(), (int)itemData.itemID);
         itemLoop++;
     }
 
@@ -141,7 +158,8 @@ inline void LoadItemRegistryFromJson() {
 class Item {
 private:
     ItemSpawnList::ItemType _type;
-    ItemSpawnList::ItemID _id;
+//    ItemSpawnList::ItemID _id;
+    size_t _id;
     Rect _rect;
     Timer useTimer{};
     time_t _swingTimer;
@@ -155,15 +173,16 @@ private:
     friend void ItemSpawnList::Despawn(Item& item, Renderer& renderer);
     friend class PlayerController;
 public:
-    explicit Item(
+    Item(
             ItemSpawnList::ItemType type = ItemSpawnList::ItemType::None,
-            ItemSpawnList::ItemID id = ItemSpawnList::ItemID::None,
+            //ItemSpawnList::ItemID id = ItemSpawnList::ItemID::None,
+            int id = 0,
             Texture texture = {}, SDL_Rect rect = {0,0,0,0});
 
 
     explicit operator Rect() const;
     inline Rect getRect() { return _rect; }
-    ItemSpawnList::ItemID id() const;
+    size_t id() const;
     ItemSpawnList::ItemType type() const;
     bool validItem();
 

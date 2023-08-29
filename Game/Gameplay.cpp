@@ -388,7 +388,8 @@ auto Game::RunGame(Renderer& renderer) -> int {
    CollapseWorldTiles();
 */
 
-    LoadItemRegistryFromJson(renderer);
+    LoadItemRegistryFromJson();
+    s_ItemRegistry.debugPrint();
 
     size_t hotbarIndex = 0, inventoryIndex = 0;
     size_t hotbarSize = 10, inventorySize = 10 * 5;
@@ -398,12 +399,16 @@ auto Game::RunGame(Renderer& renderer) -> int {
 
     Inventory playerInventory(renderer, 10, 5);
     playerInventory.moveCursor(0,0);
-    playerInventory.setSlot(1,0, ItemSpawnList::Spawn(ItemSpawnList::ItemID::TestTome, renderer));
+    playerInventory.setSlot(1,0, ItemSpawnList::SpawnFromRegistry("TestTome", renderer));
+    //playerInventory.setSlot(1,0, ItemSpawnList::Spawn(ItemSpawnList::ItemID::TestTome, renderer));
     (*playerInventory.getSlot(1).stackSize) = 10;
-    playerInventory.setSlot(2,0, ItemSpawnList::Spawn(ItemSpawnList::ItemID::TestSword, renderer));
+    playerInventory.setSlot(2,0, ItemSpawnList::SpawnFromRegistry("TestSword", renderer));
     (*playerInventory.getSlot(2).stackSize) = 10;
-    playerInventory.setSlot(3,0, ItemSpawnList::Spawn(ItemSpawnList::ItemID::TestPickaxe, renderer));
-    playerInventory.setSlot(4,0, ItemSpawnList::Spawn(ItemSpawnList::ItemID::StoneBlock, renderer));
+    playerInventory.setSlot(3,0, ItemSpawnList::SpawnFromRegistry("TestPickaxe", renderer));
+    playerInventory.setSlot(4,0, ItemSpawnList::SpawnFromRegistry("StoneBlock", renderer));
+    playerInventory.setSlot(5,0, ItemSpawnList::SpawnFromRegistry("GrassBlock", renderer));
+    playerInventory.setSlot(6,0, ItemSpawnList::SpawnFromRegistry("ActualHuman", renderer));
+
 
     //playerInventory.setSlot(3,0,ItemSpawnList::Spawn(ItemSpawnList::ItemID::GrassBlock, renderer));
     //playerInventory.setSlot(4,0,ItemSpawnList::Spawn(ItemSpawnList::ItemID::DirtBlock, renderer));
@@ -589,7 +594,7 @@ auto Game::RunGame(Renderer& renderer) -> int {
                     }
                 }
                 else if ((*playerInventory.getSlot(hotbarIndex).item).type() == ItemSpawnList::ItemType::Tool) {
-                    if ((*playerInventory.getSlot(hotbarIndex).item).id() == ItemSpawnList::ItemID::TestPickaxe &&
+                    if ((*playerInventory.getSlot(hotbarIndex).item).id() == (int)ItemSpawnList::ItemID::TestPickaxe &&
                         player.getController().playerInCombatStance()) {
                         auto playerTool = playerInventory.getSlot(hotbarIndex).item;
                         auto block = world.getBlockAtCursor();
@@ -626,7 +631,7 @@ auto Game::RunGame(Renderer& renderer) -> int {
                                     blockOgPosition.h -= 10;
                                     Item item{
                                             ItemSpawnList::ItemType::Block,
-                                            (ItemSpawnList::ItemID) block->second,
+                                            (int)(ItemSpawnList::ItemID) block->second,
                                             block->first.getTextureList()[0],
                                             blockOgPosition,
                                     };

@@ -4,7 +4,8 @@
 
 #include "Item.hpp"
 
-Item::Item(ItemSpawnList::ItemType type, ItemSpawnList::ItemID id, Texture texture, SDL_Rect rect) : _type(type), _id(id), _rect(rect), _swingTimer(clock()) {
+
+Item::Item(ItemSpawnList::ItemType type, int id, Texture texture, SDL_Rect rect) : _type(type), _id(id), _rect(rect), _swingTimer(clock()) {
     _rect.addTexture({texture});
     if (_type == ItemSpawnList::ItemType::Tool || _type == ItemSpawnList::ItemType::Weapon)
         _rect._rotOrigin = {_rect.pos.x, _rect.pos.h};
@@ -14,7 +15,7 @@ Item::operator Rect() const {
 }
 void Item::draw(Renderer &renderer, SDL_Rect dst, std::optional<Renderer::TextureDrawProperties> props) {
     using namespace ItemSpawnList;
-    if (_type == ItemType::None || _id == ItemID::None) {
+    if (_type == ItemType::None || _id == 0) {
             renderer.drawRect(_rect);
         return;
     }
@@ -23,10 +24,10 @@ void Item::draw(Renderer &renderer, SDL_Rect dst, std::optional<Renderer::Textur
     else
         renderer.drawRect(_rect);
 }
-ItemSpawnList::ItemID Item::id() const { return _id; }
+size_t Item::id() const { return _id; }
 ItemSpawnList::ItemType Item::type() const { return _type; }
 bool Item::validItem() {
-    return (_id != ItemSpawnList::ItemID::None && _type != ItemSpawnList::ItemType::None);
+    return (_id != 0 && _type != ItemSpawnList::ItemType::None);
 }
 
 
@@ -34,28 +35,35 @@ Item ItemSpawnList::Spawn(ItemSpawnList::ItemID id, Renderer &renderer) {
     const std::string pathToSrc = renderer.getPathToSrc().string();
     switch (id) {
         case ItemID::GrassBlock:
-            return Item(ItemType::Block, ItemID::GrassBlock, renderer.loadTexture(pathToSrc + "\\Asset\\Tileset64.png", 0, 0, 64, 64), {0,0,64,64});
+            return Item(ItemType::Block, (int)ItemID::GrassBlock, renderer.loadTexture(pathToSrc + "\\Asset\\Tileset64.png", 0, 0, 64, 64), {0,0,64,64});
         case ItemID::DirtBlock:
-            return Item(ItemType::Block, ItemID::DirtBlock, renderer.loadTexture(pathToSrc + "\\Asset\\Tileset64.png", 64, 0, 64, 64), {0,0,64,64});
+            return Item(ItemType::Block, (int)ItemID::DirtBlock, renderer.loadTexture(pathToSrc + "\\Asset\\Tileset64.png", 64, 0, 64, 64), {0,0,64,64});
         case ItemID::StoneBlock:
-            return Item(ItemType::Block, ItemID::StoneBlock, renderer.loadTexture(pathToSrc + "\\Asset\\Tileset64.png", 128, 0, 64, 64), {0,0,64,64});
+            return Item(ItemType::Block, (int)ItemID::StoneBlock, renderer.loadTexture(pathToSrc + "\\Asset\\Tileset64.png", 128, 0, 64, 64), {0,0,64,64});
         case ItemID::TestPickaxe:
-            return Item(ItemType::Tool, ItemID::TestPickaxe, renderer.loadTexture(pathToSrc + "\\Asset\\pickaxe.png", 0, 0, 200, 200), {0,0,64,64});
+            return Item(ItemType::Tool, (int)ItemID::TestPickaxe, renderer.loadTexture(pathToSrc + "\\Asset\\pickaxe.png", 0, 0, 64, 64), {0,0,64,64});
         case ItemID::TestSword:
-            return Item(ItemType::Weapon, ItemID::TestSword, renderer.loadTexture(pathToSrc + "\\Asset\\sword.png", 0, 0, 32, 32), {0,0,64,64});
+            return Item(ItemType::Weapon, (int)ItemID::TestSword, renderer.loadTexture(pathToSrc + "\\Asset\\sword.png", 0, 0, 64, 64), {0,0,64,64});
         case ItemID::TestTome:
-            return Item(ItemType::MagicalItem, ItemID::TestTome, renderer.loadTexture(pathToSrc + "\\Asset\\Spell_Tome.png", 0, 0, 32, 32), {0,0,64,64});
+            return Item(ItemType::MagicalItem, (int)ItemID::TestTome, renderer.loadTexture(pathToSrc + "\\Asset\\Spell_Tome.png", 0, 0, 32, 32), {0,0,64,64});
         default:
             std::cerr << "Cannot Find Item Of Id: " << (int)id << "\n";
     }
-    return Item(ItemType::None, ItemID::None);
+    return Item(ItemType::None, (int)ItemID::None);
 }
 
-Item ItemSpawnList::SpawnFromRegistry(std::string key, Renderer &renderer) {
-    auto itemData = s_ItemRegistryData[s_ItemRegistry[key]];
-    auto texturePath = renderer.getPathToSrc().string() + itemData.textureSrcPath;
-    return Item();
+ItemRegistry s_ItemRegistry = {};
 
+Item ItemSpawnList::SpawnFromRegistry(std::string key, Renderer &renderer) {
+    if (s_ItemRegistry.contains(key)) {
+        auto itemData = s_ItemRegistry[key];
+        auto texturePath = renderer.getPathToSrc().string() + itemData.textureSrcPath;
+        auto texture = renderer.loadTexture(texturePath, itemData.pos.x, itemData.pos.y, itemData.pos.z, itemData.pos.w);
+        printf("Spawning '%s'(ID: %i) As Type: %i\n", itemData.name.c_str(), itemData.itemID, (int)itemData.itemType);
+        return Item(itemData.itemType, (int) itemData.itemID, texture, (SDL_Rect) itemData.pos);
+    }
+    printf("Couldn't find key '%s'\n", key.c_str());
+    return Item(ItemType::None, (int)ItemID::None);
 }
 
 void ItemSpawnList::Despawn(Item &item, Renderer& renderer) {
@@ -63,10 +71,10 @@ void ItemSpawnList::Despawn(Item &item, Renderer& renderer) {
         renderer.unloadTexture(texture);
     }
     item._type = ItemType::None;
-    item._id = ItemID::None;
+    item._id = (int)ItemType::None;
 }
 
-static Item selectedItem(ItemSpawnList::ItemType::None, ItemSpawnList::ItemID::None);
+static Item selectedItem(ItemSpawnList::ItemType::None, (int)ItemSpawnList::ItemID::None);
 static constexpr int pickupDelay = 150;
 static Timer pickupTimer{};
 static bool isHoldingItem = false;

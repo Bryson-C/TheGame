@@ -45,7 +45,7 @@ Inventory::ItemSlotAccessor Inventory::getFirstSlotOfType(ItemSpawnList::ItemTyp
     }
     return {*this, InventoryAccessResult::TypeNotFound};
 }
-Inventory::ItemSlotAccessor Inventory::getFirstSlotOfID(ItemSpawnList::ItemID ID) {
+Inventory::ItemSlotAccessor Inventory::getFirstSlotOfID(size_t ID) {
     for (size_t index = 0; auto& i : _items) {
         if (i.id() == ID) return {*this, index, InventoryAccessResult::IDFound};
         index++;
