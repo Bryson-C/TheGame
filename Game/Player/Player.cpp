@@ -19,8 +19,7 @@ Player::Player(Renderer& renderer, int spawnX, int spawnY) :
 
     const std::string pathToSrc = renderer.getPathToSrc().string();
 
-    // TODO: Maybe Use This Function For Wind Effects
-    //SDL_RenderGeometryRaw();
+
 
     std::vector<std::vector<Texture>> playerAnimations {
             {
@@ -195,6 +194,7 @@ void Player::centerPlayerSprite(Renderer& renderer) {
 }
 
 // TODO: Update Player Collision Code
+// TODO: Add Checks For Collisions For Movement Other Than Walking/Running, i.e Rolling/Punching
 void Player::update(Event& event, Scene& scene, World& world) {
 
     bool playerCanFastFall = true;

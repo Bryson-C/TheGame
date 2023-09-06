@@ -25,6 +25,7 @@ private:
     
     friend class Renderer;
     friend int main();
+    friend class UI;
 public:
     void update();
     Event();

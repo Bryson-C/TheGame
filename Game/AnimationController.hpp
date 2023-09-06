@@ -40,9 +40,7 @@ public:
     inline size_t getAnimationSet() { return _SelectedAnimations; }
     inline size_t getAnimationSetCount() { return _Animations.size(); }
 
-    inline Texture& getFrameTexture() {
-        return _Animations[_SelectedAnimations][_AnimationIndex];
-    }
+    inline Texture& getFrameTexture() { return _Animations[_SelectedAnimations][_AnimationIndex]; }
 };
 
 

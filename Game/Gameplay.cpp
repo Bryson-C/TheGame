@@ -8,7 +8,8 @@
 #include "Player/Player.hpp"
 #include "Enemy/Enemy.hpp"
 #include "../Item/Inventory.hpp"
-#include "../Engine/UI/UIComponents.hpp"
+#include "../Engine/UI/UI.hpp"
+
 
 #ifdef WORLD_DEMO_TEST_ENABLED
 auto Game::WorldDemo(Renderer &renderer) -> int {
@@ -193,22 +194,17 @@ public:
 #include <fstream>
 
 auto CheckAnimations(Renderer& renderer) -> int {
-    Player player(renderer, 100,100);
-    FontRenderer fontRenderer(renderer);
-
+    auto windowSize = renderer.getScreenAsRect();
+    Player player(renderer, (windowSize.w/2 + windowSize.w/4), 100);
+    UI ui{renderer};
 
     std::ofstream writeFile(renderer.getPathToSrc().string() + "\\Asset\\SpriteSheets\\offsets.txt", std::ios::trunc);
-    SDL_Rect saveButton = {0,0,100,30},
-             rotateLeftButton = {120, 0, 50, 30},
-             rotateRightButton = {180, 0, 50, 30};
 
-    Timer frameChangeTimer{};
-    Timer recordTimer{};
-    Timer rotateTimer{};
     int32_t lastRecordedFrame = -1;
     int32_t objSize = 32;
     int32_t objScale = 2;
     SDL_Rect heldObj = {player.pos().x, player.pos().y, objSize * objScale, objSize * objScale};
+    bool showBorders = false, showDistanceLine = true;
 
     Renderer::TextureDrawProperties objProps;
     objProps.rotation = 0.0f;
@@ -218,99 +214,138 @@ auto CheckAnimations(Renderer& renderer) -> int {
 
     while (renderer.gameLoopIsValid()) {
         auto events = renderer.pollEvents();
+        if (renderer.getScreenAsRect().w != windowSize.w) {
+            windowSize = renderer.getScreenAsRect();
+            player.moveTo({0,0}, (windowSize.w/2 + windowSize.w/4), 100);
+        }
+
+
+        bool doExit = false;
+        ui.pollEvents(events, doExit);
 
         renderer.setColor(55, 55, 55);
         renderer.clear();
 
         auto& playerAnimator = player.getAnimatorRef();
+
+        v2<int> heldObjOffset = {heldObj.x - player.pos().x, heldObj.y - player.pos().y};
+
+        // UI
+        {
+            ui.newFrame();
+            ui.newWindow("Weapon Grip Point Editor",
+                         ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse);
+            ImVec2 uiSize = {(float) windowSize.w / 2, (float) windowSize.h};
+            ImVec2 uiPos = {0, 0};
+            ImGui::SetWindowSize(uiSize);
+            ImGui::SetWindowPos(uiPos);
+            ui.attachText("Adjust The Rotation And Positions");
+            ImGui::Checkbox("Show Borders", &showBorders);
+            ImGui::SameLine();
+            ImGui::Checkbox("Show Distance Line", &showDistanceLine);
+            ImGui::BeginChild((ImGuiID) 1, {uiSize.x - 20, 150}, true);
+
+            if (ui.attachButton("Previous Frame", {100, 45}, {UI::ButtonDir::ArrowButtonDirLeft})) {
+                playerAnimator.previousFrame();
+            }
+
+            ImGui::SameLine();
+            ui.attachText("Frame");
+            ImGui::SameLine();
+
+            if (ui.attachButton("Next Frame", {100, 45}, {UI::ButtonDir::ArrowButtonDirRight})) {
+                playerAnimator.nextFrame();
+            }
+            ImGui::SameLine();
+            if (ui.attachButton("Reset", {100, 30})) {
+                playerAnimator.setFrame(0);
+            }
+
+            if (ui.attachButton("Previous Animation Set", {0, 0}, {UI::ButtonDir::ArrowButtonDirLeft})) {
+                auto animSet = playerAnimator.getAnimationSet();
+                printf("Animation Sets: %i\n", playerAnimator.getAnimationSetCount());
+                if (animSet >= 1) {
+                    playerAnimator.setFrame(0);
+                    playerAnimator.setAnimationIndex(animSet - 1);
+                }
+            }
+            ImGui::SameLine();
+            ui.attachText("Animation Set");
+            ImGui::SameLine();
+            if (ui.attachButton("Next Animation Set", {0, 0}, {UI::ButtonDir::ArrowButtonDirRight})) {
+                auto animSet = playerAnimator.getAnimationSet();
+                if (animSet < playerAnimator.getAnimationSetCount() - 1) {
+                    playerAnimator.setFrame(0);
+                    playerAnimator.setAnimationIndex(animSet + 1);
+                }
+            }
+            ImGui::SameLine();
+            if (ui.attachButton("Reset", {100, 30})) {
+                playerAnimator.setAnimationIndex(0);
+            }
+
+            ui.attachText("Animation Set: " + std::to_string(playerAnimator.getAnimationSet()));
+            ui.attachText("Frame: " + std::to_string(playerAnimator.getFrame()));
+            ui.attachText("Object Offset: " + std::to_string(heldObjOffset.x) + ", " + std::to_string(heldObjOffset.y));
+
+            ImGui::EndChild();
+            ImGui::BeginChild((ImGuiID) 2, {200, uiSize.x / 2}, true, ImGuiWindowFlags_HorizontalScrollbar);
+
+            ui.attachImage(playerAnimator.getFrameTexture(), {-1,-1}, true);
+
+            ImGui::EndChild();
+
+            ImGui::SameLine();
+            auto playerTexUV = ui.attachImage(playerAnimator.getFrameTexture(), {200, (int) uiSize.x / 2});
+            ui.attachText("UV: " + std::to_string(playerTexUV.x) + ", " + std::to_string(playerTexUV.y));
+
+            if (ui.attachButton("Rotate Left 5 degrees", {0, 0}, UI::ButtonDir::ArrowButtonDirLeft)) {
+                objProps.rotation -= (events.keyState()[SDL_SCANCODE_RSHIFT]) ? 1.0f : 5.0f;
+            }
+            ImGui::SameLine();
+            ui.attachSlider("Angle", &objProps.rotation, 0.0f, 360.0f);
+            ImGui::SameLine();
+            if (ui.attachButton("Rotate Right 5 degrees", {0, 0}, UI::ButtonDir::ArrowButtonDirRight)) {
+                objProps.rotation += (events.keyState()[SDL_SCANCODE_RSHIFT]) ? 1.0f : 5.0f;
+            }
+
+
+            if (ui.attachButton("Save Frame", {100, 30})) {
+                writeFile << playerAnimator.getAnimationSet()
+                          << ":" << playerAnimator.getFrame()
+                          << "{" << heldObjOffset.x
+                          << ", " << heldObjOffset.y
+                          << ", " << objProps.rotation
+                          << "},\n";
+                lastRecordedFrame = playerAnimator.getFrame();
+                printf("Recorded %i:%i\n", playerAnimator.getAnimationSet(), playerAnimator.getFrame());
+            }
+
+
+            ui.endWindow();
+        }
+
         if (playerAnimator.getAnimationSetFrameCount() > 0)
             player.draw(renderer);
 
-        if (events.keyState()[SDL_SCANCODE_RIGHT] && frameChangeTimer.isComplete(200)) {
-            playerAnimator.nextFrame();
-            frameChangeTimer.reset();
-        } else if (events.keyState()[SDL_SCANCODE_LEFT] && frameChangeTimer.isComplete(200)) {
-            playerAnimator.previousFrame();
-            frameChangeTimer.reset();
-        } else if (events.keyState()[SDL_SCANCODE_0] && frameChangeTimer.isComplete(200)) {
-            playerAnimator.setFrame(0);
-            frameChangeTimer.reset();
-        } else if (events.keyState()[SDL_SCANCODE_DOWN] && frameChangeTimer.isComplete(200)) {
-            auto animSet = playerAnimator.getAnimationSet();
-            printf("Animation Sets: %i\n", playerAnimator.getAnimationSetCount());
-            if (animSet < playerAnimator.getAnimationSetCount() - 1) {
-                playerAnimator.setFrame(0);
-                playerAnimator.setAnimationIndex(animSet + 1);
-            }
-            frameChangeTimer.reset();
-        } else if (events.keyState()[SDL_SCANCODE_UP] && frameChangeTimer.isComplete(200)) {
-            auto animSet = playerAnimator.getAnimationSet();
-            if (animSet >= 1) {
-                playerAnimator.setFrame(0);
-                playerAnimator.setAnimationIndex(animSet - 1);
-            }
-            frameChangeTimer.reset();
+        if (showBorders) {
+            renderer.drawRect(player.pos(), {{.filled = false}});
+            renderer.drawRect(heldObj, {{.filled = false}});
         }
-
-
-
-        renderer.drawLine({player.pos().x, player.pos().y}, {heldObj.x, heldObj.y});
-        v2<int> heldObjOffset = {heldObj.x - player.pos().x, heldObj.y - player.pos().y};
-
-        //renderer.drawRect(heldObj);
+        if (showDistanceLine) {
+            renderer.drawLine({player.pos().x, player.pos().y}, {heldObj.x, heldObj.y});
+        }
         renderer.drawTexture(heldObj, objTexture, objProps);
-        auto col = renderer.getColor();
-        renderer.setColor(40,40,40);
-        renderer.drawRect(saveButton);
-        fontRenderer.drawText(renderer, "Save", saveButton.x, saveButton.y);
-        renderer.drawRect(rotateLeftButton);
-        fontRenderer.drawText(renderer, "Rotate Left", saveButton.x, saveButton.y);
-        renderer.drawRect(rotateRightButton);
-        fontRenderer.drawText(renderer, "Rotate Right", saveButton.x, saveButton.y);
-        renderer.setColor(col);
-
-        fontRenderer.drawNumber(renderer, heldObjOffset.x, heldObj.x, heldObj.y - 30);
-        fontRenderer.drawNumber(renderer, heldObjOffset.y, heldObj.x + 50, heldObj.y - 30);
 
 
-        if (events.mouseDownL()) {
-            if (rectsCollide({events.mx(), events.my(), 3, 3}, saveButton)) {
-                if (recordTimer.isComplete(200)) {
-                    writeFile << playerAnimator.getAnimationSet()
-                              << ":" << playerAnimator.getFrame()
-                              << "{" << heldObjOffset.x
-                              << ", " << heldObjOffset.y
-                              << ", " << objProps.rotation
-                              << "},\n";
-                    lastRecordedFrame = playerAnimator.getFrame();
-                    recordTimer.reset();
-                    printf("Recorded %i:%i\n", playerAnimator.getAnimationSet(), playerAnimator.getFrame());
-                }
-            } else if (rectsCollide({events.mx(), events.my(), 3, 3}, rotateLeftButton)) {
-                if (rotateTimer.isComplete(200)) {
-                    objProps.rotation -= (events.keyState()[SDL_SCANCODE_RSHIFT]) ? 1.0f : 5.0f;
-                    rotateTimer.reset();
-                }
-            } else if (rectsCollide({events.mx(), events.my(), 3, 3}, rotateRightButton)) {
-                if (rotateTimer.isComplete(200)) {
-                    objProps.rotation += (events.keyState()[SDL_SCANCODE_RSHIFT]) ? 1.0f : 5.0f;
-                    rotateTimer.reset();
-                }
-            } else {
+        if (events.mouseDownL() && events.mx() > windowSize.w/2) {
                 heldObj.x = events.mx();
                 heldObj.y = events.my() - (objSize * objScale);
-            }
         }
 
-
-
-
-        fontRenderer.drawNumber(renderer, playerAnimator.getAnimationSet(), 170, 30);
-        fontRenderer.drawNumber(renderer, playerAnimator.getFrame(), 200, 30);
-
-
-
-
+        //ImGui::Render();
+        //ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData());
+        ui.draw(renderer);
         renderer.present();
     }
     writeFile.close();
@@ -318,7 +353,7 @@ auto CheckAnimations(Renderer& renderer) -> int {
 }
 
 auto Game::RunGame(Renderer& renderer) -> int {
-    //return CheckAnimations(renderer);
+    return CheckAnimations(renderer);
 
     FontRenderer fontRenderer(renderer);
 
@@ -408,12 +443,14 @@ auto Game::RunGame(Renderer& renderer) -> int {
     playerInventory.setSlot(4,0, ItemSpawnList::SpawnFromRegistry("StoneBlock", renderer));
     playerInventory.setSlot(5,0, ItemSpawnList::SpawnFromRegistry("GrassBlock", renderer));
     playerInventory.setSlot(6,0, ItemSpawnList::SpawnFromRegistry("ActualHuman", renderer));
+    playerInventory.setSlot(6,0, ItemSpawnList::SpawnFromRegistry("BlankItem", renderer));
 
 
     //playerInventory.setSlot(3,0,ItemSpawnList::Spawn(ItemSpawnList::ItemID::GrassBlock, renderer));
     //playerInventory.setSlot(4,0,ItemSpawnList::Spawn(ItemSpawnList::ItemID::DirtBlock, renderer));
     //playerInventory.setSlot(5,0,ItemSpawnList::Spawn(ItemSpawnList::ItemID::StoneBlock, renderer));
 
+    auto rTex = renderer.loadTexture(renderer.getPathToSrc().string()+"\\Asset\\pickaxe.png");
 
 
     std::vector<Item> droppedItems;
@@ -653,8 +690,17 @@ auto Game::RunGame(Renderer& renderer) -> int {
 
 
         renderer.clear();
+
+        // TODO: Maybe Use This Function For Wind Effects
+        //SDL_RenderGeometryRaw();
+        renderer.drawGeometry({0,0,100,100},rTex);
+        renderer.present();
+        continue;
+
+
         renderer.drawTexture(renderer.getScreenAsRect(), backgroundTextures[0]);
         renderer.drawTexture(renderer.getScreenAsRect(), backgroundTextures[1]);
+
 
 
         world.draw(renderer);
@@ -664,6 +710,7 @@ auto Game::RunGame(Renderer& renderer) -> int {
         textProperties.renderAsOutlined = true;
         fontRenderer.drawText(renderer, "Hello", 100, 100, textProperties);
         fontRenderer.drawText(renderer, "Rendering A String", 100, 200, textProperties);
+
 
 
         player.draw(renderer);

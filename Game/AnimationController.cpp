@@ -20,7 +20,8 @@ void AnimationController::setAnimationIndex(size_t index) {
 }
 
 void AnimationController::drawFrame(Renderer& renderer, SDL_Rect dstRect, std::optional<Renderer::TextureDrawProperties> props) {
-    renderer.drawTexture(dstRect, _Animations[_SelectedAnimations][_AnimationIndex], props);
+    //renderer.drawTexture(dstRect, _Animations[_SelectedAnimations][_AnimationIndex], props);
+    renderer.drawTexture(dstRect, getFrameTexture(), props);
 }
 
 void AnimationController::nextFrame() {

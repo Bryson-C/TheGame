@@ -11,6 +11,8 @@
 
 #include "SDL.h"
 
+#include "../Utility/Types/Types.hpp"
+
 struct TextureLookUp {
     std::string path;
     bool loaded;
@@ -25,20 +27,38 @@ struct TextureLookUp {
 
 static std::vector<TextureLookUp> global_textures;
 
-
+// A Class That Holds Multiple Textures (Texture Look Ups)
 class Texture {
 private:
     friend class Renderer;
 public:
-    Texture() {}
+    size_t textureIndex;
+    int32_t textureX, textureY, textureW, textureH;
+
+    Texture() = default;
     inline explicit Texture(size_t index, int x, int y, int w, int h) :
-        gTextureIndex(index), textureX(x),textureY(y), textureW(w), textureH(h) {}
+        textureIndex(index), textureX(x),textureY(y), textureW(w), textureH(h) {}
 
     inline static std::vector<TextureLookUp>* getGlobalTextures() { return &global_textures; }
-
-    size_t gTextureIndex;
-    int32_t textureX, textureY, textureW, textureH;
 };
 
+// A Class That Switches Between Textures Based On State
+class ConditionalTexture {
+private:
+public:
+    // State Variable Acts As The Index For The Texture Array
+    int state;
+    // Uses State Variable To Get Index Of Texture Array
+    std::vector<size_t> textureArray;
+    int32_t textureX, textureY, textureW, textureH;
+
+    ConditionalTexture() = default;
+    // TODO: Implement
+    inline void addTextureState(int stateValue, size_t textureIndex, v4<int> textureSize) {
+
+    }
+
+    //inline static std::vector<TextureLookUp>* getGlobalTextures() { return &global_textures; }
+};
 
 #endif //SDL_TEXTURE_HPP

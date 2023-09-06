@@ -9,6 +9,7 @@
 #include <vector>
 #include <optional>
 #include <filesystem>
+#include <array>
 
 #include "SDL.h"
 #include "SDL_image.h"
@@ -38,6 +39,7 @@ private:
     std::filesystem::path pathToSrc;
 
     friend int main();
+    friend class UI;
 public:
     explicit Renderer(uint32_t width, uint32_t height);
     ~Renderer();
@@ -88,6 +90,15 @@ public:
         SDL_Rect r {x,y,w,h};
         drawRect(r, props);
     }
+
+    struct GeometryProperties {
+        enum Offset {
+            None, Top, Bottom, Left, Right
+        } offsetDir;
+        int offset;
+    };
+
+    void drawGeometry(SDL_Rect rect, Texture& texture, std::optional<GeometryProperties> props = {});
 
     [[deprecated("unused")]] void drawRectArray(std::vector<SDL_Rect>& rects, std::optional<RectDrawProperties> props = {});
 

@@ -62,7 +62,7 @@ Texture Renderer::loadTexture(const char* path, int textureX, int textureY, int 
                         (textureH < 0) ? look.rect.h : textureH );
                 return texture;
             } else {
-                texture.gTextureIndex = loop;
+                texture.textureIndex = loop;
                 texture.textureX = textureX;
                 texture.textureY = textureY;
                 texture.textureW = (textureW < 0) ? look.rect.w : textureW;
@@ -109,14 +109,14 @@ Texture Renderer::loadTexture(std::string path, int textureX, int textureY, int 
 }
 
 void Renderer::unloadTexture(Texture& texture) {
-    auto tex = (*Texture::getGlobalTextures())[texture.gTextureIndex];
+    auto tex = (*Texture::getGlobalTextures())[texture.textureIndex];
     tex.references--;
     printf("Unloading Texture, References: %i\n", tex.references);
     if (tex.references <= 0) {
-        SDL_DestroyTexture((*Texture::getGlobalTextures())[texture.gTextureIndex].texture);
+        SDL_DestroyTexture((*Texture::getGlobalTextures())[texture.textureIndex].texture);
         tex.loaded = false;
     }
-    texture.gTextureIndex = -1;
+    texture.textureIndex = -1;
 }
 
 void Renderer::drawLine(v2<int> xy, v2<int> xy2, RenderDrawColor color) {
@@ -155,6 +155,47 @@ void Renderer::drawRect(Rect &r, std::optional<Renderer::RectDrawProperties> pro
     }
 }
 
+
+
+void Renderer::drawGeometry(SDL_Rect rect, Texture& texture, std::optional<GeometryProperties> props) {
+    SDL_Rect r = rect;
+    std::array<SDL_Vertex,4> vertices {{
+      {{(float) r.x, (float) r.y}, {255, 255, 255, 255}, {0, 0}},
+      {{(float) (r.x + r.w), (float) r.y}, {255, 255, 255, 255}, {1, 0}},
+      {{(float) (r.x + r.w), (float) (r.y + r.h)}, {255, 255, 255, 255}, {1, 1}},
+      {{(float) r.x, (float) (r.y + r.h)}, {255, 255, 255, 255}, {0, 1}},
+    }};
+
+    constexpr size_t numIndices = 6;
+    int indices[numIndices] = { 0,1,2,2,3,0 };
+
+    if (props.has_value()) {
+        switch (props->offsetDir) {
+            case GeometryProperties::Top: {
+                vertices[0].position.x += props->offset, vertices[1].position.x += props->offset;
+            }
+            break;
+            case GeometryProperties::Bottom: {
+                vertices[2].position.x += props->offset, vertices[3].position.x += props->offset;
+            }
+            break;
+            case GeometryProperties::Left: {
+                vertices[0].position.y += props->offset, vertices[2].position.y += props->offset;
+            }
+            break;
+            case GeometryProperties::Right: {
+                vertices[1].position.y += props->offset, vertices[3].position.y += props->offset;
+            }
+            break;
+            case GeometryProperties::None: break;
+            default: break;
+        }
+    }
+
+    auto sdlTexture = (*texture.getGlobalTextures())[texture.textureIndex].texture;
+    SDL_RenderGeometry(renderer, sdlTexture, vertices.data(), vertices.size(), indices, numIndices);
+}
+
 void Renderer::drawRectArray(std::vector<SDL_Rect> &rects, std::optional<RectDrawProperties> props) {
     if (props.has_value() && !props->filled)
         SDL_RenderDrawRects(renderer, rects.data(), (size_t)rects.size());
@@ -167,7 +208,7 @@ void Renderer::drawTextureClipped(SDL_Rect pos, SDL_Rect clipArea, Texture& text
 
     if (props.has_value())
         SDL_RenderCopyEx(renderer,
-                         (*Texture::getGlobalTextures())[texture.gTextureIndex].texture,
+                         (*Texture::getGlobalTextures())[texture.textureIndex].texture,
                          &clipArea,
                          &pos,
                          props.value().rotation,
@@ -175,7 +216,7 @@ void Renderer::drawTextureClipped(SDL_Rect pos, SDL_Rect clipArea, Texture& text
                          props.value().flip);
     else
         SDL_RenderCopy(renderer,
-                       (*Texture::getGlobalTextures())[texture.gTextureIndex].texture,
+                       (*Texture::getGlobalTextures())[texture.textureIndex].texture,
                        &clipArea,
                        &pos);
 }
