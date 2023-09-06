@@ -1,8 +1,8 @@
 {
     "BlankItem" : {
         "name": "BlankItem",
-        "id": 0,
-        "type": "None",
+        "id": 10,
+        "type": "Block",
         "itemPos": [0,0,64,64],
         "desc": "",
         "textureSrc": "\\Asset\\Tileset64.png",
